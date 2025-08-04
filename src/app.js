@@ -1,0 +1,36 @@
+const express = require( "express");
+const morgan = require( "morgan");
+const helmet = require( "helmet");
+const cors = require( "cors");
+const cookieParser = require( "cookie-parser");
+const { errorHandler, notFoundHandler } = require( "./middleware/errorHandler.js");
+// const authRoutes = require( "./modules/auth/auth.routes.js");
+// const userRoutes = require( "./modules/user/user.routes.js");
+
+const app = express();
+
+// Security Middlewares
+app.use(helmet());  
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cookieParser());
+
+// Parsers
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true }));
+
+// Logger (only in dev)
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
+// Routes
+// app.use("/api/v1/auth", authRoutes);
+// app.use("/api/v1/users", userRoutes);
+
+// 404 Handler
+app.use(notFoundHandler);
+
+// Error Handling Middleware
+app.use(errorHandler);
+
+module.exports = app;
