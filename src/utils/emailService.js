@@ -6,18 +6,29 @@ const { ApiError } = require('../errors/errorHandler');
  */
 class EmailService {
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      service: process.env.EMAIL_SERVICE,
+    // Use Gmail as default email provider
+    const emailConfig = {
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: process.env.EMAIL_PORT || 587,
+      service: process.env.EMAIL_SERVICE || 'Gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER || 'arifishtiaque.sparktech@gmail.com',
+        pass: process.env.EMAIL_PASS || 'etnynjlbjeongxfe'
       },
       tls: {
         rejectUnauthorized: false
+      }
+    };
+
+    // Log a warning if using default values (which won't work without proper configuration)
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.warn('Warning: Using default email configuration values. Email sending will not work until proper credentials are set in environment variables.');
+      console.warn('Please set the following environment variables:');
+      console.warn('EMAIL_USER=your-email@gmail.com');
+      console.warn('EMAIL_PASS=your-app-specific-password');
     }
-    });
+
+    this.transporter = nodemailer.createTransport(emailConfig);
   }
 
   /**
@@ -29,19 +40,19 @@ class EmailService {
   async sendVerificationCode(to, code) {
     try {
       const mailOptions = {
-        from: `"Pet Apps" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to,
         subject: 'Email Verification Code',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-            <h2 style="color: #4CAF50;">Verify Your Email</h2>
-            <p>Thank you for registering with Pet Apps. Please use the following code to verify your email address:</p>
-            <div style="background-color: #f5f5f5; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #FFBA00; border-radius: 5px;">
+            <h2 style="color:rgb(12, 10, 3);">Verify Your Email</h2>
+            <p>Thank you for registering with ${process.env.SERVICE_NAME}. Please use the following code to verify your email address:</p>
+            <div style="background-color: #FFBA00; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
               ${code}
             </div>
             <p>This code will expire in 10 minutes.</p>
             <p>If you didn't request this code, please ignore this email.</p>
-            <p>Best regards,<br>The Pet Apps Team</p>
+            <p>Best regards,<br>The ${process.env.SERVICE_NAME} Team</p>
           </div>
         `,
       };
@@ -63,19 +74,19 @@ class EmailService {
   async sendPasswordResetCode(to, code) {
     try {
       const mailOptions = {
-        from: `"Pet Apps" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to,
         subject: 'Password Reset Code',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-            <h2 style="color: #2196F3;">Reset Your Password</h2>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #FFBA00; border-radius: 5px;">
+            <h2 style="color:rgb(12, 10, 3);">Reset Your Password</h2>
             <p>We received a request to reset your password. Please use the following code to reset your password:</p>
-            <div style="background-color: #f5f5f5; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
+            <div style="background-color: #FFBA00; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
               ${code}
             </div>
             <p>This code will expire in 10 minutes.</p>
             <p>If you didn't request this code, please ignore this email or contact support if you have concerns.</p>
-            <p>Best regards,<br>The Pet Apps Team</p>
+            <p>Best regards,<br>The ${process.env.SERVICE_NAME} Team</p>
           </div>
         `,
       };
@@ -98,20 +109,20 @@ class EmailService {
   async sendWelcomeEmail(to, name, role) {
     try {
       const roleSpecificText = role === 'owner' 
-        ? 'Thank you for registering your business with Pet Apps. We\'re excited to have you as a service provider!'
-        : 'Thank you for joining Pet Apps. We\'re excited to help you connect with pet services!';
+        ? `Thank you for registering your business with ${process.env.SERVICE_NAME}. We\'re excited to have you as a service provider!`
+        : `Thank you for joining ${process.env.SERVICE_NAME}. We\'re excited to help you connect with pet services!`;
 
       const mailOptions = {
-        from: `"Pet Apps" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to,
-        subject: 'Welcome to Pet Apps!',
+        subject: `Welcome to ${process.env.SERVICE_NAME}!`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-            <h2 style="color: #4CAF50;">Welcome to Pet Apps!</h2>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #FFBA00; border-radius: 5px;">
+            <h2 style="color:rgb(12, 10, 3);">Welcome to ${process.env.SERVICE_NAME}!</h2>
             <p>Hello ${name},</p>
             <p>${roleSpecificText}</p>
             <p>You can now log in to your account and start using our services.</p>
-            <p>Best regards,<br>The Pet Apps Team</p>
+            <p>Best regards,<br>The ${process.env.SERVICE_NAME} Team</p>
           </div>
         `,
       };
