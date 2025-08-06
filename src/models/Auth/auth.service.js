@@ -74,6 +74,9 @@ class AuthService {
     user.isVerified = true;
     user.verificationCode = { code: null, expiresAt: null };
     await user.save();
+
+    await emailService.sendWelcomeEmail(email, user.firstName, user.role);
+
     return { message: "Email verified successfully. You can now log in." };
   }
 
@@ -82,10 +85,10 @@ class AuthService {
    */
   async login(email, password) {
     const user = await User.findOne({ email }).select("+password");
-    if (!user) throw new ApiError("Invalid email or password", 401);
+    if (!user) throw new ApiError("User not found", 404);
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) throw new ApiError("Invalid email or password", 401);
+    if (!validPassword) throw new ApiError("Invalid credentials", 401);
 
     if (!user.isVerified && user.role === "USER")
       throw new ApiError("Email not verified. Please verify before logging in.", 403);
@@ -95,8 +98,21 @@ class AuthService {
       role: user.role,
     });
 
-    return { token: accessToken, user: { id: user._id, role: user.role, email: user.email } };
+    // console.log("Access Token: ", accessToken);
+    
+    const refreshToken = tokenService.generateRefreshToken({
+      id: user._id,
+      role: user.role,
+    });
+    // console.log("Refresh Token: ", refreshToken);
+    return {
+      accessToken,
+      refreshToken,
+      user: { id: user._id, role: user.role, email: user.email },
+    };
   }
+
+
 
   /**
    * Forgot Password: Send reset code

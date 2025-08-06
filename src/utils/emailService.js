@@ -40,7 +40,7 @@ class EmailService {
   async sendVerificationCode(to, code) {
     try {
       const mailOptions = {
-        from: `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: `${process.env.SERVICE_NAME}  <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to,
         subject: 'Email Verification Code',
         html: `
@@ -74,7 +74,7 @@ class EmailService {
   async sendPasswordResetCode(to, code) {
     try {
       const mailOptions = {
-        from: `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: `${process.env.SERVICE_NAME} <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to,
         subject: 'Password Reset Code',
         html: `
@@ -108,12 +108,12 @@ class EmailService {
    */
   async sendWelcomeEmail(to, name, role) {
     try {
-      const roleSpecificText = role === 'owner' 
+      const roleSpecificText = role === 'owner'
         ? `Thank you for registering your business with ${process.env.SERVICE_NAME}. We\'re excited to have you as a service provider!`
         : `Thank you for joining ${process.env.SERVICE_NAME}. We\'re excited to help you connect with pet services!`;
 
       const mailOptions = {
-        from: `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: `${process.env.SERVICE_NAME} <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to,
         subject: `Welcome to ${process.env.SERVICE_NAME}!`,
         html: `

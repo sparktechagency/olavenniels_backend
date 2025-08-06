@@ -47,7 +47,8 @@ exports.login = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    token: response.token,
+    token: response.accessToken,
+    refreshToken: response.refreshToken,
     user: response.user,
   });
 });
