@@ -206,6 +206,56 @@ async resendVerification(email) {
 
     return { message: "Admin created successfully.", admin };
   }
+
+  /**
+   * Register an admin (only Super Admin can do this)
+   */
+  async registerAdmin(adminData, creatorUser) {
+    if (creatorUser.role !== "SUPER_ADMIN") {
+      throw new ApiError("Only Super Admins can create admins", 403);
+    }
+
+    const existingAdmin = await User.findOne({ email: adminData.email });
+    if (existingAdmin) throw new ApiError("Admin with this email already exists", 400);
+
+    const hashedPassword = await bcrypt.hash(adminData.password, 10);
+
+    const admin = await User.create({
+      firstName: adminData.firstName,
+      lastName: adminData.lastName,
+      email: adminData.email,
+      password: hashedPassword,
+      country: adminData.country || "N/A",
+      role: "ADMIN",
+      isVerified: true, // Admins are auto-verified
+    });
+
+    return { id: admin._id, email: admin.email, role: admin.role };
+  }
+
+   /**
+   * Login (works for all roles)
+   */
+   async login(email, password) {
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) throw new ApiError("Invalid email or password", 401);
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) throw new ApiError("Invalid email or password", 401);
+
+    if (!user.isVerified && user.role === "USER") {
+      throw new ApiError("Email not verified. Please verify before logging in.", 403);
+    }
+
+    const accessToken = tokenService.generateAccessToken({ id: user._id, role: user.role });
+    const refreshToken = tokenService.generateRefreshToken({ id: user._id, role: user.role });
+
+    return { accessToken, refreshToken, user: { id: user._id, role: user.role, email: user.email } };
+  }
+
 }
+
+
+
 
 module.exports = new AuthService();

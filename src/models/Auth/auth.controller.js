@@ -105,3 +105,16 @@ exports.resendVerification = asyncHandler(async (req, res) => {
       message: response.message,
     });
   });
+
+
+  /**
+ * Register an admin (Super Admin only)
+ */
+exports.registerAdmin = asyncHandler(async (req, res) => {
+  const admin = await AuthService.registerAdmin(req.body, req.user); // req.user from authMiddleware
+  res.status(201).json({ success: true, message: "Admin registered successfully", data: admin });
+});
+
+/**
+ * Login (works for all roles)
+ */
