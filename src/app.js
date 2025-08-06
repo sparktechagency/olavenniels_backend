@@ -5,6 +5,7 @@ const cors = require( "cors");
 const cookieParser = require( "cookie-parser");
 const errorMiddleware = require("./middleware/errorHandler");
 const authRoutes = require( "./models/Auth/auth.routes");
+const ebookRoutes = require("./models/Ebook/ebook.routes");
 // const userRoutes = require( "./modules/user/user.routes.js");
 
 const app = express();
@@ -25,6 +26,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/ebooks", ebookRoutes);
 // app.use("/api/v1/auth", authRoutes);
 // app.use("/api/v1/users", userRoutes);
 

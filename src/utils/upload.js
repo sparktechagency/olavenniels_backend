@@ -1,30 +1,38 @@
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
+const { ApiError } = require("../errors/errorHandler");
 
+// Storage engine (different folders for images and PDFs)
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads')
+  destination: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, "uploads/images"); // For book covers
+    } else if (file.mimetype === "application/pdf") {
+      cb(null, "uploads/pdfs"); // For ebook PDFs
+    } else {
+      cb(new ApiError("Invalid file type", 400), false);
+    }
   },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname)
-  }
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
 });
 
+// File filters (allow only images & PDFs)
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [ 'image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
-  if (allowedTypes.includes(file.mimetype)) {
+  const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+  if (allowedImageTypes.includes(file.mimetype) || file.mimetype === "application/pdf") {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, JPG, GIF and WEBP are allowed!'), false);
+    cb(new ApiError("Only image (jpg, png, webp) and PDF files are allowed", 400), false);
   }
 };
 
-const upload = multer({ 
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
+// File size limits (e.g., 5MB images, 50MB PDFs)
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
 });
 
 module.exports = upload;
