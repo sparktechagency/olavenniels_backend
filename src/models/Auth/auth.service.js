@@ -3,6 +3,8 @@ const User = require("../User/User");
 const emailService = require("../../utils/emailService");
 const tokenService = require("../../utils/tokenService");
 const { ApiError } = require("../../errors/errorHandler");
+const Admin = require("../Admin/Admin");
+const RefreshToken = require("../RefreshToken/RefreshToken");
 
 class AuthService {
   /**
@@ -99,12 +101,19 @@ class AuthService {
     });
 
     // console.log("Access Token: ", accessToken);
-    
+
     const refreshToken = tokenService.generateRefreshToken({
       id: user._id,
       role: user.role,
     });
     // console.log("Refresh Token: ", refreshToken);
+
+    await RefreshToken.create({
+      user: user._id, // if it's user
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+
     return {
       accessToken,
       refreshToken,
@@ -158,17 +167,17 @@ class AuthService {
   /**
  * Resend verification code for unverified users
  */
-async resendVerification(email) {
+  async resendVerification(email) {
     const user = await User.findOne({ email });
-  
+
     if (!user) throw new ApiError("User not found.", 404);
     if (user.isVerified) throw new ApiError("Email is already verified.", 400);
-  
+
     // Generate a new code if expired or missing
     let verificationCode = user.verificationCode?.code;
     const isExpired =
       !user.verificationCode?.expiresAt || Date.now() > user.verificationCode.expiresAt;
-  
+
     if (isExpired || !verificationCode) {
       verificationCode = tokenService.generateVerificationCode();
       user.verificationCode = {
@@ -177,7 +186,7 @@ async resendVerification(email) {
       };
       await user.save();
     }
-  
+
     await emailService.sendVerificationCode(email, verificationCode);
     return { message: "A new verification code has been sent to your email." };
   }
@@ -185,27 +194,27 @@ async resendVerification(email) {
   /**
    * Super Admin creates Admin
    */
-  async createAdmin(superAdminId, { firstName, lastName, email, password }) {
-    const superAdmin = await User.findById(superAdminId);
-    if (!superAdmin || superAdmin.role !== "SUPER_ADMIN") {
-      throw new ApiError("Not authorized. Only Super Admin can create admins.", 403);
-    }
+  // async createAdmin(superAdminId, { firstName, lastName, email, password }) {
+  //   const superAdmin = await User.findById(superAdminId);
+  //   if (!superAdmin || superAdmin.role !== "SUPER_ADMIN") {
+  //     throw new ApiError("Not authorized. Only Super Admin can create admins.", 403);
+  //   }
 
-    const existing = await User.findOne({ email });
-    if (existing) throw new ApiError("Email already in use", 400);
+  //   const existing = await User.findOne({ email });
+  //   if (existing) throw new ApiError("Email already in use", 400);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const admin = await User.create({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      role: "ADMIN",
-      isVerified: true, // Admin is verified by default
-    });
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+  //   const admin = await User.create({
+  //     firstName,
+  //     lastName,
+  //     email,
+  //     password: hashedPassword,
+  //     role: "ADMIN",
+  //     isVerified: true, // Admin is verified by default
+  //   });
 
-    return { message: "Admin created successfully.", admin };
-  }
+  //   return { message: "Admin created successfully.", admin };
+  // }
 
   /**
    * Register an admin (only Super Admin can do this)
@@ -215,17 +224,15 @@ async resendVerification(email) {
       throw new ApiError("Only Super Admins can create admins", 403);
     }
 
-    const existingAdmin = await User.findOne({ email: adminData.email });
+    const existingAdmin = await Admin.findOne({ email: adminData.email });
     if (existingAdmin) throw new ApiError("Admin with this email already exists", 400);
 
     const hashedPassword = await bcrypt.hash(adminData.password, 10);
 
-    const admin = await User.create({
-      firstName: adminData.firstName,
-      lastName: adminData.lastName,
+    const admin = await Admin.create({
+      name: adminData.name,
       email: adminData.email,
       password: hashedPassword,
-      country: adminData.country || "N/A",
       role: "ADMIN",
       isVerified: true, // Admins are auto-verified
     });
@@ -233,25 +240,47 @@ async resendVerification(email) {
     return { id: admin._id, email: admin.email, role: admin.role };
   }
 
-   /**
-   * Login (works for all roles)
-   */
-   async login(email, password) {
-    const user = await User.findOne({ email }).select("+password");
-    if (!user) throw new ApiError("Invalid email or password", 401);
+  /**
+  * Login admin
+  */
+  async loginAdmin(email, password) {
+    const admin = await Admin.findOne({ email }).select("+password");
+    if (!admin) throw new ApiError("Invalid email or password", 401);
 
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, admin.password);
     if (!validPassword) throw new ApiError("Invalid email or password", 401);
 
-    if (!user.isVerified && user.role === "USER") {
-      throw new ApiError("Email not verified. Please verify before logging in.", 403);
+    const accessToken = tokenService.generateAccessToken({ id: admin._id, role: admin.role });
+    const refreshToken = tokenService.generateRefreshToken({ id: admin._id, role: admin.role });
+
+
+    await RefreshToken.create({
+      admin: admin._id, // if it's admin
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+
+    return { accessToken, refreshToken, admin: { id: admin._id, role: admin.role, email: admin.email } };
+  }
+
+  async logout(userId, role) {
+    if (!userId || !role) {
+      throw new ApiError("Invalid user information", 400);
     }
 
-    const accessToken = tokenService.generateAccessToken({ id: user._id, role: user.role });
-    const refreshToken = tokenService.generateRefreshToken({ id: user._id, role: user.role });
+    if (role === "ADMIN") {
+      await RefreshToken.deleteMany({ admin: userId });
+    } else if (role === "SUPER_ADMIN") {
+      await RefreshToken.deleteMany({ superAdmin: userId });
+    } else if (role === "USER") {
+      await RefreshToken.deleteMany({ user: userId });
+    } else {
+      throw new ApiError("Unknown role", 400);
+    }
 
-    return { accessToken, refreshToken, user: { id: user._id, role: user.role, email: user.email } };
+    return { success: true, message: "Logout successful" };
   }
+
 
 }
 

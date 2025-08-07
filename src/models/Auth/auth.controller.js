@@ -41,6 +41,7 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
  * @route   POST /api/auth/login
  * @access  Public
  */
+
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const response = await authService.login(email, password);
@@ -58,6 +59,7 @@ exports.login = asyncHandler(async (req, res) => {
  * @route   POST /api/auth/forgot-password
  * @access  Public
  */
+
 exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const response = await authService.forgotPassword(email);
@@ -111,10 +113,37 @@ exports.resendVerification = asyncHandler(async (req, res) => {
  * Register an admin (Super Admin only)
  */
 exports.registerAdmin = asyncHandler(async (req, res) => {
-  const admin = await AuthService.registerAdmin(req.body, req.user); // req.user from authMiddleware
+  const admin = await authService.registerAdmin(req.body, req.admin); // req.user from authMiddleware
   res.status(201).json({ success: true, message: "Admin registered successfully", data: admin });
 });
 
 /**
  * Login (works for all roles)
  */
+
+exports.loginAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const response = await authService.loginAdmin(email, password);
+
+  res.status(200).json({
+    success: true,
+    token: response.accessToken,
+    refreshToken: response.refreshToken,
+    user: response.user,
+  });
+});
+
+
+exports.logout = async (req, res, next) => {
+  try {
+    const userId = req.user?.id || req.admin?.id;
+    const role = req.user?.role || req.admin?.role;
+
+    const result = await authService.logout(userId, role);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
