@@ -1,5 +1,5 @@
 const Ebook = require("./Ebook");
-const ApiError = require("../../errors/errorHandler");
+const {ApiError} = require("../../errors/errorHandler");
 const fs = require("fs");
 const path = require("path");
 
@@ -14,7 +14,7 @@ const deleteFile = (filePath) => {
  * Create ebook (Admin only)
  */
 exports.createEbook = async (data, user) => {
-  if (user.role !== "ADMIN") throw new ApiError("Only admins can create ebooks", 403);
+  if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can create ebooks", 403);
 
   const ebook = await Ebook.create({
     ...data,
@@ -36,7 +36,7 @@ exports.getAllEbooks = async (query) => {
   const skip = (page - 1) * limit;
 
   const ebooks = await Ebook.find(filter)
-    .populate("createdBy", "firstName lastName email")
+    .populate("createdBy", "name email")
     .skip(skip)
     .limit(parseInt(limit))
     .sort({ createdAt: -1 });
@@ -57,7 +57,7 @@ exports.getAllEbooks = async (query) => {
  * Get single ebook
  */
 exports.getEbookById = async (id) => {
-  const ebook = await Ebook.findById(id).populate("createdBy", "firstName lastName email");
+  const ebook = await Ebook.findById(id).populate("createdBy", "name email");
   if (!ebook) throw new ApiError("Ebook not found", 404);
   return ebook;
 };
@@ -66,7 +66,7 @@ exports.getEbookById = async (id) => {
  * Update ebook (Admin only)
  */
 exports.updateEbook = async (id, data, user) => {
-  if (user.role !== "ADMIN") throw new ApiError("Only admins can update ebooks", 403);
+  if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can update ebooks", 403);
 
   const ebook = await Ebook.findById(id);
   if (!ebook) throw new ApiError("Ebook not found", 404);
@@ -84,7 +84,7 @@ exports.updateEbook = async (id, data, user) => {
  * Delete ebook (Admin only)
  */
 exports.deleteEbook = async (id, user) => {
-  if (user.role !== "ADMIN") throw new ApiError("Only admins can delete ebooks", 403);
+  if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can delete ebooks", 403);
 
   const ebook = await Ebook.findById(id);
   if (!ebook) throw new ApiError("Ebook not found", 404);

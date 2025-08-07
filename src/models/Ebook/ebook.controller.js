@@ -14,7 +14,7 @@ exports.createEbook = asyncHandler(async (req, res) => {
       bookCover: req.files?.bookCover?.[0]?.path || null,
       pdfFile: req.files?.pdfFile?.[0]?.path || null,
     },
-    req.user
+    req.admin
   );
 
   res.status(201).json({ success: true, message: "Ebook created successfully", data: ebook });
@@ -41,7 +41,7 @@ exports.updateEbook = asyncHandler(async (req, res) => {
       bookCover: req.files?.bookCover?.[0]?.path || undefined,
       pdfFile: req.files?.pdfFile?.[0]?.path || undefined,
     },
-    req.user
+    req.admin
   );
 
   res.status(200).json({ success: true, message: "Ebook updated successfully", data: ebook });
@@ -49,6 +49,6 @@ exports.updateEbook = asyncHandler(async (req, res) => {
 
 /** Delete ebook */
 exports.deleteEbook = asyncHandler(async (req, res) => {
-  await EbookService.deleteEbook(req.params.id, req.user);
+  await EbookService.deleteEbook(req.params.id, req.admin);
   res.status(200).json({ success: true, message: "Ebook deleted successfully" });
 });

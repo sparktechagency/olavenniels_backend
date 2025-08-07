@@ -32,7 +32,7 @@ const ebookSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId, // Reference to admin user who created it
-      ref: "ADMIN",
+      ref: "Admin",
     },
   },
   { timestamps: true }

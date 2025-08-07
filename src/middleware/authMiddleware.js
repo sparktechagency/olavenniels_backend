@@ -42,7 +42,7 @@ exports.authAdmin = asyncHandler(async (req, res, next) => {
   if (!admin) throw new ApiError("Admin not found", 404);
 
   // Ensure email is verified (only for regular users)
-  if (admin.role === "ADMIN" && !admin.isVerified) {
+  if (admin.role === "ADMIN" || admin.role === "SUPER_ADMIN" && !admin.isVerified) {
     throw new ApiError("Email not verified. Please verify before continuing.", 403);
   }
 
