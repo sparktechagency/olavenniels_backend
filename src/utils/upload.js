@@ -13,9 +13,11 @@ const storage = multer.diskStorage({
       cb(new ApiError("Invalid file type", 400), false);
     }
   },
+  // In your upload middleware
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'images/' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 // File filters (allow only images & PDFs)

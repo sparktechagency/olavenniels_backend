@@ -2,25 +2,31 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../Auth/auth.controller");
 const { authAdmin } = require("../../middleware/authMiddleware");
+const adminController = require("./admin.controller");
+const upload = require("../../utils/upload");
+
+router.post(
+  "/register-admin",
+  authAdmin,
+  authController.registerAdmin
+);
+
+router.post(
+  "/login-admin",
+  authController.loginAdmin
+);
 
 
 router.post(
-    "/register-admin",
-    authAdmin,
-    authController.registerAdmin
-  );
-
-router.post(
-    "/login-admin",
-    authController.loginAdmin
-  );
+  "/logout",
+  authAdmin,
+  authController.logout
+);
 
 
-  router.post(
-    "/logout",
-    authAdmin,
-    authController.logout
-  );
+router.get("/profile/get", authAdmin, adminController.getAdminProfile);
+router.put("/profile/update", authAdmin, upload.single("profilePicture"), adminController.updateAdminProfile);
+router.put("/profile/change-password", authAdmin, adminController.changeAdminPassword)
 
 module.exports = router;
 
