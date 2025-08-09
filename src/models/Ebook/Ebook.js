@@ -16,11 +16,6 @@ const ebookSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    category: {
-      type: String, // You can also use an enum or create a separate category model
-      required: true,
-      trim: true,
-    },
     pdfFile: {
       type: String, // URL/path to the uploaded PDF file
       required: true,
@@ -33,6 +28,10 @@ const ebookSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId, // Reference to admin user who created it
       ref: "Admin",
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to category
+      ref: "BookCategory",
     },
   },
   { timestamps: true }

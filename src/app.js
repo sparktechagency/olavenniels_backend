@@ -7,6 +7,7 @@ const errorMiddleware = require("./middleware/errorHandler");
 const authRoutes = require( "./models/Auth/auth.routes");
 const ebookRoutes = require("./models/Ebook/ebook.routes");
 const adminRoutes = require("./models/Admin/admin.routes");
+const bookCategoryRoutes = require("./models/BookCategory/bookCategory.router");
 // const userRoutes = require( "./modules/user/user.routes.js");
 const path = require("path");
 const fs = require("fs");
@@ -68,6 +69,7 @@ if (process.env.NODE_ENV === "development") {
 app.use("/api/auth", authRoutes);
 app.use("/api/ebooks", ebookRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/book-categories", bookCategoryRoutes);
 // app.use("/api/v1/auth", authRoutes);
 // app.use("/api/v1/users", userRoutes);
 
