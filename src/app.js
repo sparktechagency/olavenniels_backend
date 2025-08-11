@@ -9,6 +9,7 @@ const ebookRoutes = require("./models/Ebook/ebook.routes");
 const adminRoutes = require("./models/Admin/admin.routes");
 const bookCategoryRoutes = require("./models/BookCategory/bookCategory.routes");
 const audioBookRoutes = require("./models/AudioBook/audioBook.routes");
+const userRoutes = require("./models/User/user.routes");
 // const userRoutes = require( "./modules/user/user.routes.js");
 const path = require("path");
 const fs = require("fs");
@@ -68,6 +69,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/ebooks", ebookRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/book-categories", bookCategoryRoutes);
