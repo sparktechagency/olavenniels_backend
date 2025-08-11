@@ -2,39 +2,46 @@ const multer = require("multer");
 const path = require("path");
 const { ApiError } = require("../errors/errorHandler");
 
-// Storage engine (different folders for images and PDFs)
+// Storage engine with folders for images, pdfs, and audios
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, "uploads/images"); // For book covers
     } else if (file.mimetype === "application/pdf") {
       cb(null, "uploads/pdfs"); // For ebook PDFs
+    } else if (file.mimetype.startsWith("audio/")) {
+      cb(null, "uploads/audios"); // For audio files
     } else {
       cb(new ApiError("Invalid file type", 400), false);
     }
   },
-  // In your upload middleware
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// File filters (allow only images & PDFs)
+// Allowed mimetypes including audio
+const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+const allowedAudioTypes = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/ogg"];
+
 const fileFilter = (req, file, cb) => {
-  const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-  if (allowedImageTypes.includes(file.mimetype) || file.mimetype === "application/pdf") {
+  if (
+    allowedImageTypes.includes(file.mimetype) ||
+    file.mimetype === "application/pdf" ||
+    allowedAudioTypes.includes(file.mimetype)
+  ) {
     cb(null, true);
   } else {
-    cb(new ApiError("Only image (jpg, png, webp) and PDF files are allowed", 400), false);
+    cb(new ApiError("Only image (jpg, png, webp), PDF, and audio files are allowed", 400), false);
   }
 };
 
-// File size limits (e.g., 5MB images, 50MB PDFs)
+// File size limit, you can customize or use different limits per file type if needed
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB max (adjust as you want)
 });
 
 module.exports = upload;

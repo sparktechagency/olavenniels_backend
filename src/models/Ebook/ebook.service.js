@@ -41,6 +41,7 @@ exports.getAllEbooks = async (query) => {
     .limit(parseInt(limit))
     .sort({ createdAt: -1 });
 
+    if(ebooks.length === 0) throw new ApiError("Ebooks not found", 404);
   const total = await Ebook.countDocuments(filter);
 
   return {

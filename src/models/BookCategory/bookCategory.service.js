@@ -31,6 +31,8 @@ exports.getAllBookCategories = async (query) => {
     const bookCategories = await BookCategory.find()
         .skip(skip)
         .limit(parseInt(limit));
+
+    if(bookCategories.length === 0) throw new ApiError("Book categories not found", 404);
     const total = await BookCategory.countDocuments();
 
     return {
