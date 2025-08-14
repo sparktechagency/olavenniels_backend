@@ -1,6 +1,7 @@
 const Admin = require("../Admin/Admin");
 const bcrypt = require("bcryptjs");
 const { ApiError } = require("../../errors/errorHandler");
+const {deleteFile} = require("../../utils/unLinkFiles");
 
 exports.getAdminById = async (adminId) => {
   const admin = await Admin.findById(adminId).select("-password");
@@ -15,7 +16,8 @@ exports.updateAdminProfile = async (adminId, updateData) => {
     if (typeof updateData.name !== "undefined") admin.name = updateData.name;
     if (typeof updateData.phone !== "undefined") admin.phone = updateData.phone;
     if (typeof updateData.profilePicture !== "undefined") admin.profilePicture = updateData.profilePicture;
-  
+    
+    // if (updateData.profilePicture && admin.profilePicture) deleteFile(admin.profilePicture);
     await admin.save();
     return admin;
   };

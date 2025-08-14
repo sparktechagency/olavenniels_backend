@@ -83,7 +83,8 @@ exports.updateEbook = async (id, data, user) => {
 
 /**
  * Delete ebook (Admin only)
- */
+*/
+
 exports.deleteEbook = async (id, user) => {
   if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can delete ebooks", 403);
 

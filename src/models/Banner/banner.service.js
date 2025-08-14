@@ -1,6 +1,7 @@
 const Banner = require("../Banner/Banner");
 const asyncHandler = require("../../utils/asyncHandler");
 const { ApiError } = require("../../errors/errorHandler");
+const {deleteFile} = require("../../utils/unLinkFiles");
 
 exports.createBanner = async (data, user) => {
     if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can create banners", 403);
@@ -45,6 +46,7 @@ exports.updateBanner = async (id, data, user) => {
     if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can update banners", 403);
     const banner = await Banner.findByIdAndUpdate(id, data, { new: true });
     if (!banner) throw new ApiError("Banner not found", 404);
+    if (data.image && banner.image) deleteFile(banner.image);
     return banner;
 };
 

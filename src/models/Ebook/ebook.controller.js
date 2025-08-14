@@ -34,7 +34,8 @@ exports.getEbookById = asyncHandler(async (req, res) => {
 
 /** Update ebook */
 exports.updateEbook = asyncHandler(async (req, res) => {
-  const ebook = await EbookService.updateEbook(
+  const ebook = await EbookService.updateEb
+  ook(
     req.params.id,
     {
       ...req.body,
