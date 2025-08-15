@@ -9,14 +9,15 @@ exports.createPrivacy = asyncHandler(async (req, res) => {
 });
 
 exports.getAllPrivacies = asyncHandler(async (req, res) => {
-    const privacies = await privacyService.getAllPrivacies(req.query);
+    const privacies = await privacyService.getPrivacy();
+    // console.log(privacies)
     res.json({ success: true, message: "Privacies fetched successfully", privacies });
 });
 
-exports.getPrivacyById = asyncHandler(async (req, res) => {
-    const privacy = await privacyService.getPrivacyById(req.params.id);
-    res.json({ success: true, message: "Privacy fetched successfully", privacy });
-});
+// exports.getPrivacyById = asyncHandler(async (req, res) => {
+//     const privacy = await privacyService.getPrivacyById(req.params.id);
+//     res.json({ success: true, message: "Privacy fetched successfully", privacy });
+// });
 
 exports.updatePrivacy = asyncHandler(async (req, res) => {
     const { description } = req.body;

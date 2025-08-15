@@ -1,30 +1,34 @@
 const Faq = require("../Faq/Faq");
 const { ApiError } = require("../../errors/errorHandler");
-const { deleteFile } = require("../../utils/unLinkFiles");
 const asyncHandler = require("../../utils/asyncHandler");
 
 
-exports.createFaq = asyncHandler(async (data, admin) => {
+exports.createFaq = async (data, admin) => {
     const faq = await Faq.create({ ...data, createdBy: admin.id });
+    if (!faq) throw new ApiError("Faq not created", 400);
     return faq;
-});
+}
 
-exports.getAllFaqs = asyncHandler(async (query) => {
+exports.getAllFaqs = async (query) => {
     const faqs = await Faq.find(query);
+    if (!faqs) throw new ApiError("Faqs not found", 404);
     return faqs;
-});
+};
 
-exports.getFaqById = asyncHandler(async (id) => {
+exports.getFaqById = async (id) => {
     const faq = await Faq.findById(id);
+    if (!faq) throw new ApiError("Faq not found", 404);
     return faq;
-});
+};
 
-exports.updateFaq = asyncHandler(async (id, data, admin) => {
+exports.updateFaq = async (id, data, admin) => {
     const faq = await Faq.findByIdAndUpdate(id, { ...data, updatedBy: admin.id }, { new: true });
+    if (!faq) throw new ApiError("Faq not found", 404);
     return faq;
-});
+};
 
-exports.deleteFaq = asyncHandler(async (id) => {
+exports.deleteFaq = async (id) => {
     const faq = await Faq.findByIdAndDelete(id);
+    if (!faq) throw new ApiError("Faq not found", 404);
     return faq;
-});
+};

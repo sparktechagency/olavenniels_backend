@@ -7,6 +7,7 @@ const { deleteFile } = require("../../utils/unLinkFiles");
 exports.createFaq = asyncHandler(async (req, res) => {
     const { question, answer } = req.body;
     const faq = await faqService.createFaq({ question, answer }, req.admin);
+    console.log(faq)
     res.status(201).json({ success: true, message: "Faq created successfully", data: faq });
 });
 

@@ -3,32 +3,32 @@ const { ApiError } = require("../../errors/errorHandler");
 const asyncHandler = require("../../utils/asyncHandler");
 
 
-exports.createPrivacy = asyncHandler(async (data, admin) => {
+exports.createPrivacy = async (data, admin) => {
     const privacy = await Privacy.create({ ...data, createdBy: admin.id });
-
+    if (!privacy) throw new ApiError("Privacy not created", 400);
     return privacy;
-});
+};
 
-exports.getAllPrivacies = asyncHandler(async () => {
-    const privacies = await Privacy.findOne();
-    if (!privacies) throw new ApiError("Privacies not found", 404);
-    return privacies;
-});
-
-exports.getPrivacyById = asyncHandler(async (id) => {
-    const privacy = await Privacy.findById(id);
+exports.getPrivacy = async () => {
+    const privacy = await Privacy.findOne();
     if (!privacy) throw new ApiError("Privacy not found", 404);
     return privacy;
-});
+};
 
-exports.updatePrivacy = asyncHandler(async (id, data, admin) => {
+// exports.getPrivacyById = asyncHandler(async (id) => {
+//     const privacy = await Privacy.findById(id);
+//     if (!privacy) throw new ApiError("Privacy not found", 404);
+//     return privacy;
+// });
+
+exports.updatePrivacy = async (id, data, admin) => {
     const privacy = await Privacy.findByIdAndUpdate(id, { ...data, updatedBy: admin.id }, { new: true });
     if (!privacy) throw new ApiError("Privacy not found", 404);
     return privacy;
-});
+};
 
-exports.deletePrivacy = asyncHandler(async (id) => {
+exports.deletePrivacy = async (id) => {
     const privacy = await Privacy.findByIdAndDelete(id);
     if (!privacy) throw new ApiError("Privacy not found", 404);
     return privacy;
-});
+};
