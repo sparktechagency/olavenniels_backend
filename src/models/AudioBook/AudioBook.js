@@ -19,6 +19,9 @@ const audioBookSchema = new mongoose.Schema({
         ref: "BookCategory",
         required: true
     },
+    categoryName: {
+        type: String,
+    },
     audioFile: {
         type: String, // store file path or URL
         required: true

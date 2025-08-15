@@ -1,12 +1,17 @@
 const audioBookService = require('./audioBook.service');
 const asyncHandler = require('../../utils/asyncHandler');
+const BookCategory = require('../BookCategory/BookCategory');
+const { ApiError } = require('../../errors/errorHandler');
 
 exports.createAudioBook = asyncHandler(async (req, res) => {
   // Assuming bookCover and audioFile are uploaded files
   // You may receive them as req.files.bookCover[0], req.files.audioFile[0] if using multer.fields()
   // Adjust according to your multer setup
 
-  const { bookName, synopsis, category } = req.body;
+  const { bookName, synopsis } = req.body;
+  const category = await BookCategory.findById(req.body.category);
+  if (!category) throw new ApiError("Category not found", 404);
+  const categoryName = category.name;
 
   const bookCoverPath = req.files?.bookCover ? req.files.bookCover[0].path : undefined;
   const audioFilePath = req.files?.audioFile ? req.files.audioFile[0].path : undefined;
@@ -17,6 +22,7 @@ exports.createAudioBook = asyncHandler(async (req, res) => {
     bookName,
     synopsis,
     category,
+    categoryName,
   };
 
   const audioBook = await audioBookService.createAudioBook(data, req.admin);
@@ -34,12 +40,12 @@ exports.getAudioBookById = asyncHandler(async (req, res) => {
 });
 
 exports.updateAudioBook = asyncHandler(async (req, res) => {
-    const data = {
-      bookName: req.body.bookName,
-      synopsis: req.body.synopsis,
-      category: req.body.category,
-    };
-  
+    const data = {};
+
+    if (req.body.bookName) data.bookName = req.body.bookName;
+    if (req.body.synopsis) data.synopsis = req.body.synopsis;
+    if (req.body.category) data.category = req.body.category;
+
     // Only add bookCover if new file uploaded
     if (req.files?.bookCover && req.files.bookCover.length > 0) {
       data.bookCover = req.files.bookCover[0].path;
@@ -49,7 +55,7 @@ exports.updateAudioBook = asyncHandler(async (req, res) => {
     if (req.files?.audioFile && req.files.audioFile.length > 0) {
       data.audioFile = req.files.audioFile[0].path;
     }
-  
+
     const audioBook = await audioBookService.updateAudioBook(req.params.id, data, req.admin);
     res.json({ success: true, message: 'AudioBook updated successfully', data: audioBook });
   });

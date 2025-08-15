@@ -22,17 +22,22 @@ exports.createAudioBook = async (data, user) => {
 };
 
 exports.getAllAudioBooks = async (query) => {
-  const { limit = 10, page = 1 } = query;
+  const { limit = 10, page = 1, search, categoryName } = query;
   const skip = (page - 1) * limit;
 
-  const audioBooks = await AudioBook.find()
+  const filter = {};
+
+  if (search) filter.bookName = { $regex: search, $options: "i" };
+  if (categoryName) filter.categoryName = { $regex: `^${categoryName}$`, $options: "i" };
+
+  const audioBooks = await AudioBook.find(filter)
     .skip(skip)
     .limit(parseInt(limit))
-    .populate('category');
+    .populate('category', 'name');
 
     if(audioBooks.length === 0) throw new ApiError("AudioBooks not found", 404);
 
-  const total = await AudioBook.countDocuments();
+  const total = await AudioBook.countDocuments(filter);
 
   return {
     audioBooks,
@@ -45,7 +50,7 @@ exports.getAllAudioBooks = async (query) => {
 };
 
 exports.getAudioBookById = async (id) => {
-  const audioBook = await AudioBook.findById(id).populate('category');
+  const audioBook = await AudioBook.findById(id).populate('category', 'name');
   if (!audioBook) throw new ApiError('AudioBook not found', 404);
   return audioBook;
 };

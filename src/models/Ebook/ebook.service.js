@@ -32,7 +32,7 @@ exports.getAllEbooks = async (query) => {
   const filter = {};
 
   if (search) filter.bookName = { $regex: search, $options: "i" };
-  if (categoryName) filter.categoryName = categoryName;
+  if (categoryName) filter.categoryName = { $regex: `^${categoryName}$`, $options: "i" };
 
   const skip = (page - 1) * limit;
 
@@ -60,7 +60,9 @@ exports.getAllEbooks = async (query) => {
  * Get single ebook
  */
 exports.getEbookById = async (id) => {
-  const ebook = await Ebook.findById(id).populate("createdBy", "name email");
+  const ebook = await Ebook.findById(id)
+    .populate("createdBy", "name email")
+    .populate("category", "name");
   if (!ebook) throw new ApiError("Ebook not found", 404);
   return ebook;
 };
