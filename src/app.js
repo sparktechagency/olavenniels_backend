@@ -12,6 +12,7 @@ const audioBookRoutes = require("./models/AudioBook/audioBook.routes");
 const userRoutes = require("./models/User/user.routes");
 const bannerRoutes = require("./models/Banner/banner.routes");
 const faqRoutes = require("./models/Faq/faq.routes");
+const privacyRoutes = require("./models/Privacy/privacy.routes");
 // const userRoutes = require( "./modules/user/user.routes.js");
 const path = require("path");
 const fs = require("fs");
@@ -78,6 +79,7 @@ app.use("/api/book-categories", bookCategoryRoutes);
 app.use("/api/audio-books", audioBookRoutes);
 app.use("/api/banner", bannerRoutes);
 app.use("/api/faq", faqRoutes);
+app.use("/api/privacy", privacyRoutes);
 // app.use("/api/v1/auth", authRoutes);
 // app.use("/api/v1/users", userRoutes);
 
