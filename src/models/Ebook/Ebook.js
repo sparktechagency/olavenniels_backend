@@ -33,6 +33,9 @@ const ebookSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, // Reference to category
       ref: "BookCategory",
     },
+    categoryName: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

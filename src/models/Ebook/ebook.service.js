@@ -2,6 +2,7 @@ const Ebook = require("./Ebook");
 const {ApiError} = require("../../errors/errorHandler");
 const fs = require("fs");
 const path = require("path");
+const mongoose = require("mongoose");
 
 /** Delete file helper */
 const deleteFile = (filePath) => {
@@ -27,21 +28,22 @@ exports.createEbook = async (data, user) => {
  * Get all ebooks with search & pagination
  */
 exports.getAllEbooks = async (query) => {
-  const { search, category, page = 1, limit = 10 } = query;
+  const { search, categoryName, page = 1, limit = 10 } = query;
   const filter = {};
 
   if (search) filter.bookName = { $regex: search, $options: "i" };
-  if (category) filter.category = category;
+  if (categoryName) filter.categoryName = categoryName;
 
   const skip = (page - 1) * limit;
 
   const ebooks = await Ebook.find(filter)
     .populate("createdBy", "name email")
+    .populate("category", "name")
     .skip(skip)
     .limit(parseInt(limit))
     .sort({ createdAt: -1 });
 
-    if(ebooks.length === 0) throw new ApiError("Ebooks not found", 404);
+  if (ebooks.length === 0) throw new ApiError("Ebooks not found", 404);
   const total = await Ebook.countDocuments(filter);
 
   return {

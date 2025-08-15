@@ -1,15 +1,19 @@
 const asyncHandler = require("../../utils/asyncHandler");
 const EbookService = require("./ebook.service");
+const BookCategory = require("../BookCategory/BookCategory");
 
 /** Create Ebook */
 exports.createEbook = asyncHandler(async (req, res) => {
-  const { bookName, synopsis, category, totalPages } = req.body;
+  const { bookName, synopsis, totalPages } = req.body;
+  const category = await BookCategory.findById(req.body.category);
+  const categoryName = category.name;
 
   const ebook = await EbookService.createEbook(
     {
       bookName,
       synopsis,
       category,
+      categoryName,
       totalPages,
       bookCover: req.files?.bookCover?.[0]?.path || null,
       pdfFile: req.files?.pdfFile?.[0]?.path || null,
@@ -34,8 +38,7 @@ exports.getEbookById = asyncHandler(async (req, res) => {
 
 /** Update ebook */
 exports.updateEbook = asyncHandler(async (req, res) => {
-  const ebook = await EbookService.updateEb
-  ook(
+  const ebook = await EbookService.updateEbook(
     req.params.id,
     {
       ...req.body,
