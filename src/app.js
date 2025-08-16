@@ -57,9 +57,28 @@ app.use("/", express.static(path.join(__dirname, '..')));
 //     });
 //   });
 // });
+
+const allowedOrigins = [         // your main frontend from .env
+  "http://10.10.20.54:3500",
+  "http://localhost:3500",       // fallback localhost
+];
+
+
 // Security Middlewares
 app.use(helmet());  
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: function (origin, callback) {
+    console.log("Incoming origin:", origin);
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      console.log("Allowed:", origin);
+      return callback(null, true);
+    }
+    console.log("Blocked:", origin);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+}));
 app.use(cookieParser());
 
 // Parsers

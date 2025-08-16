@@ -35,7 +35,7 @@ exports.getAllAudioBooks = async (query) => {
     .limit(parseInt(limit))
     .populate('category', 'name');
 
-    if(audioBooks.length === 0) throw new ApiError("AudioBooks not found", 404);
+  if (audioBooks.length === 0) throw new ApiError("AudioBooks not found", 404);
 
   const total = await AudioBook.countDocuments(filter);
 
@@ -57,23 +57,23 @@ exports.getAudioBookById = async (id) => {
 
 exports.updateAudioBook = async (id, data, user) => {
   if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
-    throw new ApiError('Only admins or super admins can update audiobooks', 403);
+  throw new ApiError('Only admins or super admins can update audiobooks', 403);  
   }
 
   const audioBook = await AudioBook.findById(id);
   if (!audioBook) throw new ApiError('AudioBook not found', 404);
 
   // If updating files stored locally, delete old ones before updating
-  if (data.bookCover && data.bookCover !== audioBook.bookCover) {
-    deleteFile(audioBook.bookCover);
-  }
-  if (data.audioFile && data.audioFile !== audioBook.audioFile) {
-    deleteFile(audioBook.audioFile);
-  }
+  if (data.bookCover && audioBook.bookCover) deleteFile(audioBook.bookCover);
+  if (data.audioFile && audioBook.audioFile) deleteFile(audioBook.audioFile);
 
-  Object.assign(audioBook, data);
-  await audioBook.save();
-  return audioBook;
+  const updated = await AudioBook.findByIdAndUpdate(
+    id,
+    { $set: data },
+    { new: true, runValidators: false } // disable required validation for partial update
+  );
+
+  return updated;
 };
 
 exports.deleteAudioBook = async (id, user) => {

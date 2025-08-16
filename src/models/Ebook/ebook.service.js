@@ -80,9 +80,14 @@ exports.updateEbook = async (id, data, user) => {
   if (data.bookCover && ebook.bookCover) deleteFile(ebook.bookCover);
   if (data.pdfFile && ebook.pdfFile) deleteFile(ebook.pdfFile);
 
-  Object.assign(ebook, data);
-  await ebook.save();
-  return ebook;
+
+  const updated = await Ebook.findByIdAndUpdate(
+    id,
+    { $set: data },
+    { new: true, runValidators: false } // disable required validation for partial update
+  );
+
+  return updated;
 };
 
 /**

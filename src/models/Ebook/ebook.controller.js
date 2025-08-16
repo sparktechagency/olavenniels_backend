@@ -4,9 +4,17 @@ const BookCategory = require("../BookCategory/BookCategory");
 
 /** Create Ebook */
 exports.createEbook = asyncHandler(async (req, res) => {
-  const { bookName, synopsis, totalPages } = req.body;
+  const { bookName, synopsis, totalPages, tags } = req.body;
   const category = await BookCategory.findById(req.body.category);
   const categoryName = category.name;
+
+
+  let tagsArray = [];
+  if (typeof tags === "string") {
+    tagsArray = tags.split(",").map((tag) => tag.trim());
+  } else if (Array.isArray(tags)) {
+    tagsArray = tags;
+  }
 
   const ebook = await EbookService.createEbook(
     {
@@ -17,6 +25,7 @@ exports.createEbook = asyncHandler(async (req, res) => {
       totalPages,
       bookCover: req.files?.bookCover?.[0]?.path || null,
       pdfFile: req.files?.pdfFile?.[0]?.path || null,
+      tags: tagsArray,
     },
     req.admin
   );
@@ -44,6 +53,7 @@ exports.updateEbook = asyncHandler(async (req, res) => {
       ...req.body,
       bookCover: req.files?.bookCover?.[0]?.path || undefined,
       pdfFile: req.files?.pdfFile?.[0]?.path || undefined,
+      tags: req.body.tags ? req.body.tags.split(",").map((tag) => tag.trim()) : [],
     },
     req.admin
   );

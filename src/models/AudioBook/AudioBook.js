@@ -25,7 +25,10 @@ const audioBookSchema = new mongoose.Schema({
     audioFile: {
         type: String, // store file path or URL
         required: true
-    }
+    },
+    tags: {
+        type: [String],
+    },
 }, {
     timestamps: true
 });

@@ -36,6 +36,9 @@ const ebookSchema = new mongoose.Schema(
     categoryName: {
       type: String,
     },
+    tags: {
+      type: [String],
+    },
   },
   { timestamps: true }
 );
