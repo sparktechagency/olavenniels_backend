@@ -16,6 +16,7 @@ const privacyRoutes = require("./models/Privacy/privacy.routes");
 const termsAndConditionsRoutes = require("./models/TermsAndConditions/termsAndConditions.routes");
 const homePageRoutes = require("./models/HomePage/homePage.routes");
 const categoryRoutes = require("./models/BookCategory/category.routes");
+const userActivityRoutes = require("./models/UserActivity/userActivity.routes");
 
 // const userRoutes = require( "./modules/user/user.routes.js");
 const path = require("path");
@@ -106,6 +107,7 @@ app.use("/api/terms-and-conditions", termsAndConditionsRoutes);
 app.use("/api/home", homePageRoutes);
 app.use("/api/audio-books", audioBookRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/user-activity", userActivityRoutes);
 
 // app.use("/api/v1/auth", authRoutes);
 // app.use("/api/v1/users", userRoutes);
