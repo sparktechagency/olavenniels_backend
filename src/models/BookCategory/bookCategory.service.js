@@ -32,7 +32,7 @@ exports.getAllBookCategories = async (query) => {
         .skip(skip)
         .limit(parseInt(limit));
 
-    if(bookCategories.length === 0) throw new ApiError("Book categories not found", 404);
+    if(bookCategories.length === 0) return { bookCategories: [], pagination: { total: 0, page: parseInt(page), pages: 0 } };
     const total = await BookCategory.countDocuments();
 
     return {
@@ -54,16 +54,19 @@ exports.getBookCategoryById = async (id) => {
 exports.updateBookCategory = async (id, data, user) => {
     if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can update book categories", 403);
     
-    const bookCategory = await BookCategory.findByIdAndUpdate(id);
+    const bookCategory = await BookCategory.findById(id);
     if (!bookCategory) throw new ApiError("Book category not found", 404);
 
     if (data.image) {
         deleteFile(bookCategory.image);
     }
     
-    Object.assign(bookCategory, data);
-    await bookCategory.save();
-    return bookCategory;
+    const updated = await BookCategory.findByIdAndUpdate(
+        id,
+        { $set: data },
+        { new: true, runValidators: false } // disable required validation for partial update
+      );
+      return updated;
 };
 
 exports.deleteBookCategory = async (id  , user) => {

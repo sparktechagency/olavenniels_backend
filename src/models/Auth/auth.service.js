@@ -219,6 +219,7 @@ class AuthService {
   /**
    * Register an admin (only Super Admin can do this)
    */
+  
   async registerAdmin(adminData, creatorUser) {
     if (creatorUser.role !== "SUPER_ADMIN") {
       throw new ApiError("Only Super Admins can create admins", 403);

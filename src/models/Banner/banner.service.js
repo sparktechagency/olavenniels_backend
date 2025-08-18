@@ -24,7 +24,7 @@ exports.getAllBanners = async (query) => {
         Banner.countDocuments()
     ]);
 
-    if(banners.length === 0) throw new ApiError("Banners not found", 404);
+    if(banners.length === 0) return { banners: [], pagination: { total: 0, page: parseInt(page), pages: 0 } };
     
     return {
         banners,

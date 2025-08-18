@@ -35,7 +35,7 @@ exports.getAllAudioBooks = async (query) => {
     .limit(parseInt(limit))
     .populate('category', 'name');
 
-  if (audioBooks.length === 0) throw new ApiError("AudioBooks not found", 404);
+  if (audioBooks.length === 0) return { audioBooks: [], pagination: { total: 0, page: parseInt(page), pages: 0 } };
 
   const total = await AudioBook.countDocuments(filter);
 
