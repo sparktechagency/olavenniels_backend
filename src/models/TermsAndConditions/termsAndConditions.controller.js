@@ -21,7 +21,7 @@ exports.getAllTermsAndConditions = asyncHandler(async (req, res) => {
 
 exports.updateTermsAndConditions = asyncHandler(async (req, res) => {
     const { description } = req.body;
-    const termsAndConditions = await termsAndConditionsService.updateTermsAndConditions(req.params.id, { description }, req.admin);
+    const termsAndConditions = await termsAndConditionsService.updateTermsAndConditions({ description }, req.admin);
     res.json({ success: true, message: "Terms and conditions updated successfully", data: termsAndConditions });
 });
 

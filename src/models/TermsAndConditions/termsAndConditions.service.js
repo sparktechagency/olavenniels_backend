@@ -20,9 +20,9 @@ exports.getTermsAndConditions = async () => {
 //     return privacy;
 // });
 
-exports.updateTermsAndConditions = async (id, data, admin) => {
-    const termsAndConditions = await TermsAndConditions.findByIdAndUpdate(id, { ...data, updatedBy: admin.id }, { new: true });
-    if (!termsAndConditions) throw new ApiError("Terms and conditions not found", 404);
+exports.updateTermsAndConditions = async (data, admin) => {
+    const termsAndConditions = await TermsAndConditions.findOneAndUpdate({}, { ...data, updatedBy: admin.id }, { new: true });
+    if (!termsAndConditions) return null;
     return termsAndConditions;
 };
 

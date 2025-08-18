@@ -22,7 +22,7 @@ exports.getPrivacy = async () => {
 // });
 
 exports.updatePrivacy = async (id, data, admin) => {
-    const privacy = await Privacy.findByIdAndUpdate(id, { ...data, updatedBy: admin.id }, { new: true });
+    const privacy = await Privacy.findByIdAndUpdate(id, { ...data, updatedBy: admin.id }, { new: true, upsert: true });
     if (!privacy) throw new ApiError("Privacy not found", 404);
     return privacy;
 };

@@ -21,7 +21,7 @@ exports.getAllPrivacies = asyncHandler(async (req, res) => {
 
 exports.updatePrivacy = asyncHandler(async (req, res) => {
     const { description } = req.body;
-    const privacy = await privacyService.updatePrivacy(req.params.id, { description }, req.admin);
+    const privacy = await privacyService.updatePrivacy({ description }, req.admin);
     res.json({ success: true, message: "Privacy updated successfully", data: privacy });
 });
 
