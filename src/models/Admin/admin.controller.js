@@ -33,3 +33,8 @@ exports.changeAdminPassword = asyncHandler(async (req, res) => {
 
   res.json({ success: true, message: "Password updated successfully" });
 });
+
+exports.getAllAdmins = asyncHandler(async (req, res) => {
+    const admins = await adminService.getAllAdmins();
+    res.json({ success: true, admins });
+});

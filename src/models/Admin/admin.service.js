@@ -9,6 +9,11 @@ exports.getAdminById = async (adminId) => {
   return admin;
 };
 
+exports.getAllAdmins = async () => {
+  const admins = await Admin.find({ role: { $ne: "SUPER_ADMIN" } }).lean();
+  return admins;
+};
+
 exports.updateAdminProfile = async (adminId, updateData) => {
     const admin = await Admin.findById(adminId);
     if (!admin) throw new ApiError("Admin not found", 404);
