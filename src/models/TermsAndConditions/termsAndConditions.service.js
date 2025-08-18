@@ -10,7 +10,7 @@ exports.createTermsAndConditions = async (data, admin) => {
 
 exports.getTermsAndConditions = async () => {
     const termsAndConditions = await TermsAndConditions.findOne();
-    if (!termsAndConditions) throw new ApiError("Terms and conditions not found", 404);
+    if (!termsAndConditions) return null;
     return termsAndConditions;
 };
 

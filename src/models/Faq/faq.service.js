@@ -11,13 +11,13 @@ exports.createFaq = async (data, admin) => {
 
 exports.getAllFaqs = async (query) => {
     const faqs = await Faq.find(query);
-    if (!faqs) throw new ApiError("Faqs not found", 404);
+    if (!faqs) return [];
     return faqs;
 };
 
 exports.getFaqById = async (id) => {
     const faq = await Faq.findById(id);
-    if (!faq) throw new ApiError("Faq not found", 404);
+    if (!faq) return null;
     return faq;
 };
 

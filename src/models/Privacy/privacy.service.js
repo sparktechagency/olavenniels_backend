@@ -11,7 +11,7 @@ exports.createPrivacy = async (data, admin) => {
 
 exports.getPrivacy = async () => {
     const privacy = await Privacy.findOne();
-    if (!privacy) throw new ApiError("Privacy not found", 404);
+    if (!privacy) return [];
     return privacy;
 };
 
