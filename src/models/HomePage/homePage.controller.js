@@ -65,22 +65,31 @@ const getHomePageData = asyncHandler(async (req, res) => {
             .lean()
     ]);
 
+    // Add type flags to each item
+    const addTypeFlags = (items, isAudioBook, isEbook) => {
+        return items.map(item => ({
+            ...item,
+            isAudioBook,
+            isEbook
+        }));
+    };
+
     // Structure the response
     res.json({
         success: true,
         data: {
-            recommended: {
-                audioBooks: recommendedAudioBooks,
-                ebooks: recommendedEbooks
-            },
-            newReleases: {
-                audioBooks: newAudioBooks,
-                ebooks: newEbooks
-            },
-            trending: {
-                audioBooks: trendingAudioBooks,
-                ebooks: trendingEbooks
-            }
+            recommended: [
+                ...addTypeFlags(recommendedAudioBooks, true, false),
+                ...addTypeFlags(recommendedEbooks, false, true)
+            ],
+            newReleases: [
+                ...addTypeFlags(newAudioBooks, true, false),
+                ...addTypeFlags(newEbooks, false, true)
+            ],
+            trending: [
+                ...addTypeFlags(trendingAudioBooks, true, false),
+                ...addTypeFlags(trendingEbooks, false, true)
+            ]
         }
     });
 });

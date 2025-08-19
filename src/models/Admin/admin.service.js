@@ -43,3 +43,10 @@ exports.changeAdminPassword = async (adminId, currentPassword, newPassword, conf
 
   return true;
 };
+
+
+exports.deleteAdmin = async (adminId) => {
+    const admin = await Admin.findByIdAndDelete(adminId);
+    if (!admin) throw new ApiError("Admin not found", 404);
+    return admin;
+};

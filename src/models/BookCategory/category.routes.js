@@ -7,9 +7,10 @@ const { getCategoriesWithCounts, getBooksByCategory } = require('./category.cont
 // @access  Public
 router.get('/', getCategoriesWithCounts);
 
-// @route   GET /api/categories/:categoryId/books
-// @desc    Get books by category
+// @route   GET /api/categories/books/:categoryId
+// @desc    Get books by category with optional filtering and pagination
 // @access  Public
-router.get('/:categoryId/books', getBooksByCategory);
+// Example: GET /api/categories/books/123?type=audio&page=1&limit=10
+router.get('/books', getBooksByCategory);
 
 module.exports = router;

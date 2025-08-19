@@ -38,3 +38,9 @@ exports.getAllAdmins = asyncHandler(async (req, res) => {
     const admins = await adminService.getAllAdmins();
     res.json({ success: true, admins });
 });
+
+
+exports.deleteAdmin = asyncHandler(async (req, res) => {
+    const admin = await adminService.deleteAdmin(req.params.id);
+    res.json({ success: true, message: "Admin deleted successfully", admin });
+});
