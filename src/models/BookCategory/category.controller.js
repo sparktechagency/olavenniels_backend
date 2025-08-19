@@ -26,7 +26,6 @@ const getCategoriesWithCounts = asyncHandler(async (req, res) => {
             };
         })
     );
-
     res.json({
         success: true,
         data: categoriesWithCounts
