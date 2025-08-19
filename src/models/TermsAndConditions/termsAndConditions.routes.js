@@ -5,7 +5,7 @@ const { authAdmin } = require("../../middleware/authMiddleware");
 
 router.post("/create", authAdmin, termsAndConditionsController.createTermsAndConditions);
 router.get("/get", termsAndConditionsController.getAllTermsAndConditions);
-router.put("/update/:id", authAdmin, termsAndConditionsController.updateTermsAndConditions);
+router.put("/update", authAdmin, termsAndConditionsController.updateTermsAndConditions);
 router.delete("/delete/:id", authAdmin, termsAndConditionsController.deleteTermsAndConditions);
 
 module.exports = router;
