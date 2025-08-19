@@ -57,7 +57,7 @@ exports.updateBookCategory = async (id, data, user) => {
     const bookCategory = await BookCategory.findById(id);
     if (!bookCategory) throw new ApiError("Book category not found", 404);
 
-    if (data.image) {
+    if (data?.image) {
         deleteFile(bookCategory.image);
     }
     
