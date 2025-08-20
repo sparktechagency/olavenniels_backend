@@ -11,12 +11,10 @@ const bookCategoryRoutes = require("./models/BookCategory/bookCategory.routes");
 const audioBookRoutes = require("./models/AudioBook/audioBook.routes");
 const userRoutes = require("./models/User/user.routes");
 const bannerRoutes = require("./models/Banner/banner.routes");
-const faqRoutes = require("./models/Faq/faq.routes");
-const privacyRoutes = require("./models/Privacy/privacy.routes");
-const termsAndConditionsRoutes = require("./models/TermsAndConditions/termsAndConditions.routes");
 const homePageRoutes = require("./models/HomePage/homePage.routes");
 const categoryRoutes = require("./models/BookCategory/category.routes");
 const userActivityRoutes = require("./models/UserActivity/userActivity.routes");
+const manageRoutes = require("./models/Manage/manage.routes");
 
 // const userRoutes = require( "./modules/user/user.routes.js");
 const path = require("path");
@@ -101,13 +99,11 @@ app.use("/api/ebooks", ebookRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/book-categories", bookCategoryRoutes);
 app.use("/api/banner", bannerRoutes);
-app.use("/api/faq", faqRoutes);
-app.use("/api/privacy", privacyRoutes);
-app.use("/api/terms-and-conditions", termsAndConditionsRoutes);
 app.use("/api/home", homePageRoutes);
 app.use("/api/audio-books", audioBookRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/user-activity", userActivityRoutes);
+app.use("/api/manage", manageRoutes);
 
 // app.use("/api/v1/auth", authRoutes);
 // app.use("/api/v1/users", userRoutes);
