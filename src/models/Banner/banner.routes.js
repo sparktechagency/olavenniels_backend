@@ -7,7 +7,7 @@ const upload = require("../../utils/upload");
 router.post("/create", authAdmin, upload.single("image"), createBanner);
 router.get("/get", getAllBanners);
 router.get("/get/:id", getBannerById);
-router.put("/update/:id", authAdmin, upload.single("image"), updateBanner);
-router.delete("/delete/:id", authAdmin, deleteBanner);
+router.put("/update", authAdmin, upload.single("image"), updateBanner);
+router.delete("/delete", authAdmin, deleteBanner);
 
 module.exports = router;

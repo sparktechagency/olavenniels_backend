@@ -25,14 +25,14 @@ exports.updateBanner = asyncHandler(async (req, res) => {
         throw new ApiError("Image file is required for update", 400);
     }
     const banner = await bannerService.updateBanner(
-        req.params.id, 
-        { image: req.file.path }, 
+        req.query.id,
+        { image: req.file.path },
         req.admin
     );
     res.json({ success: true, message: "Banner updated successfully", data: banner });
 });
 
 exports.deleteBanner = asyncHandler(async (req, res) => {
-    const banner = await bannerService.deleteBanner(req.params.id, req.admin);
+    const banner = await bannerService.deleteBanner(req.query.id, req.admin);
     res.json({ success: true, message: "Banner deleted successfully", data: banner });
 });

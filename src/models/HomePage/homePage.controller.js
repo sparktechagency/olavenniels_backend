@@ -1,6 +1,10 @@
 const AudioBook = require('../AudioBook/AudioBook');
 const Ebook = require('../Ebook/Ebook');
 const asyncHandler = require('../../utils/asyncHandler');
+const { ApiError } = require('../../errors/errorHandler');
+const Book = require('../Book/Book');
+const AudioBookService = require('../AudioBook/AudioBook');
+
 
 // Common fields to select for both AudioBooks and Ebooks
 const commonSelectFields = 'bookCover bookName categoryName synopsis';
@@ -94,6 +98,17 @@ const getHomePageData = asyncHandler(async (req, res) => {
     });
 });
 
+const getBooksById = asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    const book = await Book.findById(id).lean();
+    const audioBook = await AudioBook.findById(id).lean();
+    const ebook = await Ebook.findById(id).lean();
+    
+    if (!book && !audioBook && !ebook) throw new ApiError("Book not found", 404);
+    res.json({ success: true, data: book || audioBook || ebook });
+}); 
+
 module.exports = {
-    getHomePageData
+    getHomePageData,
+    getBooksById
 };

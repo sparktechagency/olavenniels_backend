@@ -36,7 +36,6 @@ const getCategoriesWithCounts = asyncHandler(async (req, res) => {
 // @route   GET /api/categories/books/:categoryId
 // @access  Public
 const getBooksByCategory = asyncHandler(async (req, res) => {
-    // const { categoryId } = req.params;
     const { type = 'all', page = 1, limit = 10, categoryId } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     console.log(req.query);
