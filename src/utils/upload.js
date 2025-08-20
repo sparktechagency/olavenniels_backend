@@ -24,11 +24,12 @@ const storage = multer.diskStorage({
 // Allowed mimetypes including audio
 const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
 const allowedAudioTypes = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/ogg"];
+const allowedPdfTypes = ["application/pdf"];
 
 const fileFilter = (req, file, cb) => {
   if (
     allowedImageTypes.includes(file.mimetype) ||
-    file.mimetype === "application/pdf" ||
+    allowedPdfTypes.includes(file.mimetype) ||
     allowedAudioTypes.includes(file.mimetype)
   ) {
     cb(null, true);

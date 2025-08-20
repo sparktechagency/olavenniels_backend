@@ -3,7 +3,7 @@ const Ebook = require('../Ebook/Ebook');
 const asyncHandler = require('../../utils/asyncHandler');
 
 // Common fields to select for both AudioBooks and Ebooks
-const commonSelectFields = 'bookCover bookName categoryName';
+const commonSelectFields = 'bookCover bookName categoryName synopsis';
 
 // @desc    Get home page data
 // @route   GET /api/home
