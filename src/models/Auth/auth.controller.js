@@ -135,6 +135,28 @@ exports.loginAdmin = asyncHandler(async (req, res) => {
 });
 
 
+/**
+ * @desc    Refresh access token
+ * @route   POST /api/auth/refresh-token
+ * @access  Public
+ */
+exports.refreshToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  if (!refreshToken) {
+    throw new ApiError('Refresh token is required', 400);
+  }
+
+  const tokens = await authService.refreshToken(refreshToken);
+  
+  res.status(200).json({
+    success: true,
+    token: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+    user: tokens.user
+  });
+});
+
 exports.logout = async (req, res, next) => {
   try {
     const userId = req.user?.id || req.admin?.id;

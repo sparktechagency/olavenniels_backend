@@ -114,15 +114,18 @@ const addFaq = async (payload) => {
   return await FAQ.create(payload);
 };
 
-const updateFaq = async (payload) => {
-  validateFields(payload, ["faqId", "question", "description"]);
+const updateFaq = async (req) => {
+  const { faqId } = req.query;
+  validateFields({ faqId }, ["faqId"]);
 
-  const { faqId, ...rest } = payload;
+  const { question, description } = req.body;
+  validateFields({ question, description }, ["question", "description"]);
 
-  const result = await FAQ.findOneAndUpdate({ _id: faqId }, rest, {
-    new: true,
-    runValidators: true,
-  });
+  const result = await FAQ.findOneAndUpdate(
+    { _id: faqId },
+    { question, description },
+    { new: true, runValidators: true }
+  );
 
   if (!result) throw new ApiError(status.NOT_FOUND, "FAQ not found");
 
@@ -145,15 +148,41 @@ const deleteFaq = async (query) => {
   return result;
 };
 
+// const addContactUs = async (payload) => {
+//   const checkIsExist = await ContactUs.findOne();
+
+//   if (checkIsExist) {
+//     const result = await ContactUs.findOneAndUpdate({}, payload, {
+//       new: true,
+//       runValidators: true,
+//     });
+
+//     return {
+//       message: "Contact Us updated",
+//       result,
+//     };
+//   } else {
+//     return await ContactUs.create(payload);
+//   }
+// };
+
 const addContactUs = async (payload) => {
   const checkIsExist = await ContactUs.findOne();
-
+ 
   if (checkIsExist) {
-    const result = await ContactUs.findOneAndUpdate({}, payload, {
-      new: true,
-      runValidators: true,
-    });
-
+    const result = await ContactUs.findOneAndUpdate(
+      {},
+      {
+        $set: {
+          emails: payload.emails,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+ 
     return {
       message: "Contact Us updated",
       result,

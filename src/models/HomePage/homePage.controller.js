@@ -3,7 +3,6 @@ const Ebook = require('../Ebook/Ebook');
 const asyncHandler = require('../../utils/asyncHandler');
 const { ApiError } = require('../../errors/errorHandler');
 const Book = require('../Book/Book');
-const AudioBookService = require('../AudioBook/AudioBook');
 
 
 // Common fields to select for both AudioBooks and Ebooks
@@ -20,7 +19,10 @@ const getHomePageData = asyncHandler(async (req, res) => {
         trendingAudioBooks,
         recommendedEbooks,
         newEbooks,
-        trendingEbooks
+        trendingEbooks,
+        recommendedBooks,
+        newBooks,
+        trendingBooks
     ] = await Promise.all([
         // AudioBooks
         AudioBook.find({ tags: { $in: ['recommended'] } })
@@ -29,21 +31,23 @@ const getHomePageData = asyncHandler(async (req, res) => {
             .select(commonSelectFields)
             .lean(),
 
-        AudioBook.find({ 
-            createdAt: { 
-                $gte: new Date(new Date().setDate(new Date().getDate() - 30)) 
+        AudioBook.find({
+            createdAt: {
+                $gte: new Date(new Date().setDate(new Date().getDate() - 30))
             }
         })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .select(commonSelectFields)
-        .lean(),
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select(commonSelectFields)
+            .lean(),
 
         AudioBook.find()
             .sort({ viewCount: -1 })
             .limit(5)
             .select(commonSelectFields)
             .lean(),
+
+
 
         // Ebooks
         Ebook.find({ tags: { $in: ['recommended'] } })
@@ -52,29 +56,56 @@ const getHomePageData = asyncHandler(async (req, res) => {
             .select(commonSelectFields)
             .lean(),
 
-        Ebook.find({ 
-            createdAt: { 
-                $gte: new Date(new Date().setDate(new Date().getDate() - 30)) 
+        Ebook.find({
+            createdAt: {
+                $gte: new Date(new Date().setDate(new Date().getDate() - 30))
             }
         })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .select(commonSelectFields)
-        .lean(),
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select(commonSelectFields)
+            .lean(),
 
         Ebook.find()
             .sort({ viewCount: -1 })
             .limit(5)
             .select(commonSelectFields)
-            .lean()
+            .lean(),
+
+
+
+        // Books
+        Book.find({ tags: { $in: ['recommended'] } })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select(commonSelectFields)
+            .lean(),
+
+        Book.find({
+            createdAt: {
+                $gte: new Date(new Date().setDate(new Date().getDate() - 30))
+            }
+        })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select(commonSelectFields)
+            .lean(),
+
+        Book.find()
+            .sort({ viewCount: -1 })
+            .limit(5)
+            .select(commonSelectFields)
+            .lean(),
+
     ]);
 
     // Add type flags to each item
-    const addTypeFlags = (items, isAudioBook, isEbook) => {
+    const addTypeFlags = (items, isAudioBook, isEbook, isBook) => {
         return items.map(item => ({
             ...item,
             isAudioBook,
-            isEbook
+            isEbook,
+            isBook
         }));
     };
 
@@ -83,16 +114,19 @@ const getHomePageData = asyncHandler(async (req, res) => {
         success: true,
         data: {
             recommended: [
-                ...addTypeFlags(recommendedAudioBooks, true, false),
-                ...addTypeFlags(recommendedEbooks, false, true)
+                ...addTypeFlags(recommendedAudioBooks, true, false, false),
+                ...addTypeFlags(recommendedEbooks, false, true, false),
+                ...addTypeFlags(recommendedBooks, false, false, true)
             ],
             newReleases: [
-                ...addTypeFlags(newAudioBooks, true, false),
-                ...addTypeFlags(newEbooks, false, true)
+                ...addTypeFlags(newAudioBooks, true, false, false),
+                ...addTypeFlags(newEbooks, false, true, false),
+                ...addTypeFlags(newBooks, false, false, true)
             ],
             trending: [
-                ...addTypeFlags(trendingAudioBooks, true, false),
-                ...addTypeFlags(trendingEbooks, false, true)
+                ...addTypeFlags(trendingAudioBooks, true, false, false),
+                ...addTypeFlags(trendingEbooks, false, true, false),
+                ...addTypeFlags(trendingBooks, false, false, true)
             ]
         }
     });
@@ -103,10 +137,10 @@ const getBooksById = asyncHandler(async (req, res) => {
     const book = await Book.findById(id).lean();
     const audioBook = await AudioBook.findById(id).lean();
     const ebook = await Ebook.findById(id).lean();
-    
+
     if (!book && !audioBook && !ebook) throw new ApiError("Book not found", 404);
     res.json({ success: true, data: book || audioBook || ebook });
-}); 
+});
 
 module.exports = {
     getHomePageData,

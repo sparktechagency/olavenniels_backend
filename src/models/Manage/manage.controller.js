@@ -103,7 +103,7 @@ const addFaq = asyncHandler(async (req, res) => {
 });
 
 const updateFaq = asyncHandler(async (req, res) => {
-  const result = await ManageService.updateFaq(req.body);
+  const result = await ManageService.updateFaq(req);
   sendResponse(res, {
     statusCode: 200,
     success: true,

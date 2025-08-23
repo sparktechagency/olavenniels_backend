@@ -53,11 +53,31 @@ const aboutUsSchema = new mongoose.Schema(
   }
 );
 
+// const contactUsSchema = new mongoose.Schema(
+//   {
+//     description: {
+//       type: String,
+//       required: true,
+//     },
+//   },
+//   {
+//     timestamps: true,
+//   }
+// );
+
 const contactUsSchema = new mongoose.Schema(
   {
-    description: {
-      type: String,
+    emails: {
+      type: [String],
       required: true,
+      validate: {
+        validator: function (emails) {
+          return emails.every((email) =>
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/.test(email)
+          );
+        },
+        message: "One or more emails are invalid",
+      },
     },
   },
   {

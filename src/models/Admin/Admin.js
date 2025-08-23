@@ -31,7 +31,7 @@ const adminSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: true,
-    },
+    }
 } , {
     timestamps: true
 })

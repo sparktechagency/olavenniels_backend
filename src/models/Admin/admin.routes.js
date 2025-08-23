@@ -7,7 +7,7 @@ const upload = require("../../utils/upload");
 
 router.post(
   "/register-admin",
-  authAdmin,
+  authSuperAdmin,
   authController.registerAdmin
 );
 
@@ -19,7 +19,7 @@ router.post(
 
 router.post(
   "/logout",
-  authAdmin,
+  authAdminOrSuperAdmin,
   authController.logout
 );
 

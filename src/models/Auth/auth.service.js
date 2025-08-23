@@ -105,6 +105,7 @@ class AuthService {
     const refreshToken = tokenService.generateRefreshToken({
       id: user._id,
       role: user.role,
+      email: user.email,
     });
     // console.log("Refresh Token: ", refreshToken);
 
@@ -235,7 +236,6 @@ class AuthService {
       email: adminData.email,
       password: hashedPassword,
       role: "ADMIN",
-      isVerified: true, // Admins are auto-verified
     });
 
     return { id: admin._id, email: admin.email, role: admin.role };
@@ -282,7 +282,71 @@ class AuthService {
     return { success: true, message: "Logout successful" };
   }
 
+  /**
+   * Refresh access token using refresh token
+   * @param {string} refreshToken - The refresh token
+   * @returns {Object} New access and refresh tokens with user info
+   */
+  async refreshToken(refreshToken) {
+    if (!refreshToken) {
+      throw new ApiError('Refresh token is required', 400);
+    }
 
+    // Find the refresh token in the database
+    const storedToken = await RefreshToken.findOne({ token: refreshToken });
+    if (!storedToken) {
+      throw new ApiError('Invalid refresh token', 401);
+    }
+
+    // Check if refresh token has expired
+    if (storedToken.expiresAt < new Date()) {
+      await RefreshToken.findByIdAndDelete(storedToken._id);
+      throw new ApiError('Refresh token has expired. Please login again.', 401);
+    }
+
+    // Verify the refresh token
+    let decoded;
+    try {
+      decoded = tokenService.verifyRefreshToken(refreshToken);
+      console.log(decoded)
+    } catch (error) {
+      await RefreshToken.findByIdAndDelete(storedToken._id);
+      throw new ApiError('Invalid refresh token', 401);
+    }
+
+    // Delete the old refresh token
+    await RefreshToken.findByIdAndDelete(storedToken._id);
+
+    // Generate new tokens
+    const newAccessToken = tokenService.generateAccessToken({
+      id: decoded.id,
+      role: decoded.role,
+      email: decoded.email,
+    });
+
+    const newRefreshToken = tokenService.generateRefreshToken({
+      id: decoded.id,
+      role: decoded.role,
+      email: decoded.email,
+    });
+
+    // Save the new refresh token
+    await RefreshToken.create({
+      [decoded.role === 'ADMIN' ? 'admin' : 'user']: decoded.id,
+      token: newRefreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    });
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id: decoded.id,
+        role: decoded.role,
+        email: decoded.email,
+      },
+    };
+  }
 }
 
 

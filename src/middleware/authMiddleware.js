@@ -42,9 +42,9 @@ exports.authAdmin = asyncHandler(async (req, res, next) => {
   if (!admin) throw new ApiError("Admin not found", 404);
 
   // Ensure email is verified (only for regular users)
-  if (admin.role === "ADMIN" || admin.role === "SUPER_ADMIN" && !admin.isVerified) {
-    throw new ApiError("Email not verified. Please verify before continuing.", 403);
-  }
+  // if (admin.role === "ADMIN" || admin.role === "SUPER_ADMIN") {
+  //   throw new ApiError("Email not verified. Please verify before continuing.", 403);
+  // }
 
   req.admin = {
     id: decoded.id,
@@ -67,9 +67,9 @@ exports.authSuperAdmin = asyncHandler(async (req, res, next) => {
   if (!admin) throw new ApiError("Admin not found", 404);
 
   // Ensure email is verified (only for regular users)
-  if (admin.role === "SUPER_ADMIN" && !admin.isVerified) {
-    throw new ApiError("Email not verified. Please verify before continuing.", 403);
-  }
+  // if (admin.role === "SUPER_ADMIN") {
+  //   throw new ApiError("Email not verified. Please verify before continuing.", 403);
+  // }
 
   req.admin = {
     id: decoded.id,
@@ -92,9 +92,9 @@ exports.authAdminOrSuperAdmin = asyncHandler(async (req, res, next) => {
   if (!admin) throw new ApiError("Admin not found", 404);
 
   // Ensure email is verified (only for regular users)
-  if (admin.role === "ADMIN" || admin.role === "SUPER_ADMIN" && !admin.isVerified) {
-    throw new ApiError("Email not verified. Please verify before continuing.", 403);
-  }
+  // if (admin.role === "ADMIN" || admin.role === "SUPER_ADMIN") { 
+  //   throw new ApiError("Email not verified. Please verify before continuing.", 403);
+  // }
 
   req.admin = {
     id: decoded.id,
