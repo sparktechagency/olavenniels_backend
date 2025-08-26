@@ -10,10 +10,10 @@ const updateReadingProgress = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     // Validate book type
-    if (!['AudioBook', 'Ebook'].includes(bookType)) {
+    if (!['AudioBook', 'Ebook', 'Book'].includes(bookType)) {
         return res.status(400).json({
             success: false,
-            message: 'Invalid book type. Must be either "AudioBook" or "Ebook"'
+            message: 'Invalid book type. Must be either "AudioBook" or "Ebook" or "Book"'
         });
     }
 

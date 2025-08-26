@@ -16,6 +16,7 @@ const categoryRoutes = require("./models/BookCategory/category.routes");
 const userActivityRoutes = require("./models/UserActivity/userActivity.routes");
 const manageRoutes = require("./models/Manage/manage.routes");
 const bookRoutes = require("./models/Book/book.routes");
+const userManagementRoutes = require("./models/UserManagement/userManagement.routes");
 // const userRoutes = require( "./modules/user/user.routes.js");
 const path = require("path");
 const fs = require("fs");
@@ -105,6 +106,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/user-activity", userActivityRoutes);
 app.use("/api/manage", manageRoutes);
 app.use("/api/books", bookRoutes);
+app.use("/api/user-management", userManagementRoutes);
 
 // app.use("/api/v1/auth", authRoutes);
 // app.use("/api/v1/users", userRoutes);
