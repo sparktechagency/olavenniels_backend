@@ -6,7 +6,7 @@ const userActivitySchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    book: {
+    bookId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         refPath: 'bookType'
@@ -14,10 +14,25 @@ const userActivitySchema = new mongoose.Schema({
     bookType: {
         type: String,
         required: true,
-        enum: ['AudioBook', 'Ebook']
+        enum: ['AudioBook', 'Ebook', 'Book']
     },
+    // Combined progress (auto-calculated from read and listen progress)
     progress: {
-        type: Number, // Percentage of completion (0-100)
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    // Reading progress (for PDF/ebook)
+    readProgress: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    // Listening progress (for audio)
+    listenProgress: {
+        type: Number,
         default: 0,
         min: 0,
         max: 100
@@ -26,12 +41,20 @@ const userActivitySchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    lastListened: {
+        type: Date,
+        default: null
+    },
     status: {
         type: String,
         enum: ['reading', 'completed', 'on-hold', 'dropped'],
         default: 'reading'
     },
-    timeSpent: {
+    timeSpentReading: {
+        type: Number, // in seconds
+        default: 0
+    },
+    timeSpentListening: {
         type: Number, // in seconds
         default: 0
     },
@@ -42,6 +65,11 @@ const userActivitySchema = new mongoose.Schema({
     currentTime: {
         type: Number, // in seconds (for audio books)
         default: 0
+    },
+    lastActivityType: {
+        type: String,
+        enum: ['read', 'listen', null],
+        default: null
     }
 }, {
     timestamps: true

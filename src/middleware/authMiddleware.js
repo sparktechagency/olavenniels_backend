@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const {ApiError} = require("../errors/errorHandler");
 const User = require("../models/User/User");
 const Admin = require("../models/Admin/Admin");
+
 exports.authUser = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {

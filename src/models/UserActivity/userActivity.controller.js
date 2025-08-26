@@ -1,38 +1,92 @@
+const mongoose = require('mongoose');
 const UserActivity = require('./UserActivity');
 const asyncHandler = require('../../utils/asyncHandler');
 const { startOfDay, endOfDay, subDays, eachDayOfInterval } = require('date-fns');
 
-// @desc    Update reading progress
-// @route   PUT /api/user-activity/progress
+// @desc    Update reading/listening progress
+// @route   POST /api/user-activity/progress
 // @access  Private
 const updateReadingProgress = asyncHandler(async (req, res) => {
-    const { bookId, bookType, progress, currentPage, currentTime } = req.body;
+    const { 
+        bookId, 
+        bookType, 
+        progress, 
+        currentPage, 
+        currentTime,
+        activityType = 'read' // 'read' or 'listen'
+    } = req.body;
+    
     const userId = req.user._id;
 
     // Validate book type
     if (!['AudioBook', 'Ebook', 'Book'].includes(bookType)) {
         return res.status(400).json({
             success: false,
-            message: 'Invalid book type. Must be either "AudioBook" or "Ebook" or "Book"'
+            message: 'Invalid book type. Must be either "AudioBook", "Ebook", or "Book"'
         });
     }
 
-    let updateData = {
-        progress: Math.min(100, Math.max(0, progress || 0)),
-        lastRead: new Date()
+    // Validate activity type
+    if (!['read', 'listen'].includes(activityType)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid activity type. Must be either "read" or "listen"'
+        });
+    }
+
+    // Get existing activity or create a new one
+    let activity = await UserActivity.findOne({ 
+        user: userId, 
+        bookId: bookId, 
+        bookType 
+    });
+
+    // Prepare update data
+    const updateData = {
+        lastActivityType: activityType,
+        lastRead: activityType === 'read' ? new Date() : activity?.lastRead,
+        lastListened: activityType === 'listen' ? new Date() : activity?.lastListened,
+        $inc: {}
     };
 
-    if (currentPage !== undefined) updateData.currentPage = currentPage;
-    if (currentTime !== undefined) updateData.currentTime = currentTime;
+    // Update read progress
+    if (activityType === 'read' && progress !== undefined) {
+        updateData.readProgress = Math.min(100, Math.max(0, progress));
+        updateData.$inc.timeSpentReading = 5; // 5 seconds per update
+        if (currentPage !== undefined) updateData.currentPage = currentPage;
+    }
 
-    const activity = await UserActivity.findOneAndUpdate(
-        { user: userId, book: bookId, bookType },
-        {
-            $set: updateData,
-            $inc: { timeSpent: 5 } // Assuming 5 seconds per update, adjust as needed
-        },
+    // Update listen progress
+    if (activityType === 'listen' && currentTime !== undefined) {
+        updateData.listenProgress = Math.min(100, Math.max(0, progress || 0));
+        updateData.currentTime = currentTime;
+        updateData.$inc.timeSpentListening = 5; // 5 seconds per update
+    }
+
+    // Calculate overall progress (max of read and listen progress)
+    const newReadProgress = activityType === 'read' ? 
+        Math.min(100, Math.max(0, progress)) : 
+        (activity?.readProgress || 0);
+    
+    const newListenProgress = activityType === 'listen' ? 
+        Math.min(100, Math.max(0, progress || 0)) : 
+        (activity?.listenProgress || 0);
+    
+    updateData.progress = Math.max(newReadProgress, newListenProgress);
+
+    // Update status based on progress
+    if (updateData.progress >= 100) {
+        updateData.status = 'completed';
+    } else if (activity?.status === 'completed' && updateData.progress < 100) {
+        updateData.status = 'reading';
+    }
+
+    // Update or create the activity
+    activity = await UserActivity.findOneAndUpdate(
+        { user: userId, bookId: bookId, bookType },
+        updateData,
         { new: true, upsert: true, setDefaultsOnInsert: true }
-    ).populate('book', 'bookName bookCover');
+    ).populate('bookId', 'title coverImage');
 
     res.json({
         success: true,
@@ -52,7 +106,7 @@ const getUserStatistics = asyncHandler(async (req, res) => {
         user: userId,
         status: 'reading'
     })
-    .populate('book', 'bookName bookCover')
+    .populate('bookId', 'title coverImage')
     .sort({ lastRead: -1 })
     .limit(5);
 
@@ -61,7 +115,7 @@ const getUserStatistics = asyncHandler(async (req, res) => {
         user: userId,
         status: 'completed'
     })
-    .populate('book', 'bookName bookCover')
+    .populate('bookId', 'title coverImage')
     .sort({ updatedAt: -1 })
     .limit(5);
 
@@ -69,14 +123,19 @@ const getUserStatistics = asyncHandler(async (req, res) => {
     const activityData = await UserActivity.aggregate([
         {
             $match: {
-                user: userId,
+                user: new mongoose.Types.ObjectId(userId),
                 lastRead: { $gte: sevenDaysAgo }
+            }
+        },
+        {
+            $addFields: {
+                dateStr: { $dateToString: { format: '%Y-%m-%d', date: '$lastRead' } }
             }
         },
         {
             $group: {
                 _id: {
-                    $dateToString: { format: '%Y-%m-%d', date: '$lastRead' },
+                    date: '$dateStr',
                     bookType: '$bookType'
                 },
                 timeSpent: { $sum: '$timeSpent' },
