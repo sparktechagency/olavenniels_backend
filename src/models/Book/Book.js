@@ -28,6 +28,22 @@ const bookSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        isSaved: {
+            type: Boolean,
+            default: false
+        },
+        isAudioBook: {
+            type: Boolean,
+            default: false
+        },
+        isEbook: {
+            type: Boolean,
+            default: false
+        },
+        isBook: {
+            type: Boolean,
+            default: true
+        },
 
         // Ebook version
 

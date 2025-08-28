@@ -29,6 +29,22 @@ const audioBookSchema = new mongoose.Schema({
     tags: {
         type: [String],
     },
+    isSaved: {
+        type: Boolean,
+        default: false
+    },
+    isAudioBook: {
+        type: Boolean,
+        default: true
+    },
+    isEbook: {
+        type: Boolean,
+        default: false
+    },
+    isBook: {
+        type: Boolean,
+        default: false
+    },
 }, {
     timestamps: true
 });

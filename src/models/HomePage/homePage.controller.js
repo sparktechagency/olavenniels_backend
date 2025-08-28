@@ -142,7 +142,53 @@ const getBooksById = asyncHandler(async (req, res) => {
     res.json({ success: true, data: book || audioBook || ebook });
 });
 
+const saveUnsaveBooks = asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    const [book, audioBook, ebook] = await Promise.all([
+        Book.findById(id),
+        AudioBook.findById(id),
+        Ebook.findById(id)
+    ]);
+
+    if (!book && !audioBook && !ebook) {
+        throw new ApiError("Book not found", 404);
+    }
+
+    if (book) {
+        book.isSaved = !book.isSaved;
+        await book.save();
+    }
+
+    if (audioBook) {
+        audioBook.isSaved = !audioBook.isSaved;
+        await audioBook.save();
+    }
+
+    if (ebook) {
+        ebook.isSaved = !ebook.isSaved;
+        await ebook.save();
+    }
+
+    res.json({ success: true, data: book || audioBook || ebook });
+});
+
+const getSavedBooks = asyncHandler(async (req, res) => {
+    const books = await Book.find({ isSaved: true }).lean();
+    const audioBooks = await AudioBook.find({ isSaved: true }).lean();
+    const ebooks = await Ebook.find({ isSaved: true }).lean();
+
+    const allBooks = [
+        ...books,
+        ...audioBooks,
+        ...ebooks
+    ];
+
+    res.json({ success: true, data: allBooks });
+});
+
 module.exports = {
     getHomePageData,
-    getBooksById
+    getBooksById,
+    saveUnsaveBooks,
+    getSavedBooks
 };

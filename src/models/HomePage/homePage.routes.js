@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getHomePageData, getBooksById } = require('./homePage.controller');
+const { getHomePageData, getBooksById, saveUnsaveBooks, getSavedBooks } = require('./homePage.controller');
 
 // @route   GET /api/home
 // @desc    Get home page data
@@ -11,5 +11,8 @@ router.get('/', getHomePageData);
 // @desc    Get book by id
 // @access  Public
 router.get('/book', getBooksById);
+
+router.post('/save', saveUnsaveBooks);
+router.get('/saved', getSavedBooks);
 
 module.exports = router;
