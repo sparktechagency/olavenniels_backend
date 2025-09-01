@@ -1,7 +1,7 @@
 const Banner = require("../Banner/Banner");
 const asyncHandler = require("../../utils/asyncHandler");
 const { ApiError } = require("../../errors/errorHandler");
-const {deleteFile} = require("../../utils/unLinkFiles");
+const {deleteFile} = require("../../utils/unlinkFiles");
 
 exports.createBanner = async (data, user) => {
     if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") throw new ApiError("Only admins or super admins can create banners", 403);
