@@ -35,3 +35,12 @@ exports.changeUserPassword = asyncHandler(async (req, res) => {
 
   res.json({ success: true, message: "Password updated successfully" });
 });
+
+
+exports.toggleSaveBook = asyncHandler(async (req, res) => {
+  const { id } = req.query;
+
+  const book = await userService.toggleSaveBook(req.user._id || req.user.id, id);
+
+  res.json({ success: true, message: "Book saved successfully", data: book });
+});

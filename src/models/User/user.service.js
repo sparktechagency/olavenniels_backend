@@ -1,6 +1,9 @@
 const User = require("../User/User");
 const bcrypt = require("bcryptjs");
 const { ApiError } = require("../../errors/errorHandler");
+const Book = require("../Book/Book");
+const Ebook = require("../Ebook/Ebook");
+const AudioBook = require("../AudioBook/AudioBook");
 
 exports.getUserById = async (userId) => {
   const user = await User.findById(userId).select("-password").select("-verificationCode").select("-isVerified").select("-passwordResetCode");
@@ -37,4 +40,27 @@ exports.changeUserPassword = async (userId, currentPassword, newPassword, confir
   await user.save();
 
   return true;
+};
+
+
+exports.toggleSaveBook = async (userId, bookId) => {
+  const user = await User.findById(userId).select("-password").select("-verificationCode").select("-isVerified").select("-passwordResetCode");
+  if (!user) throw new ApiError("User not found", 404);
+
+  const book = await Book.findById(bookId);
+  const ebook = await Ebook.findById(bookId);
+  const audiobook = await AudioBook.findById(bookId);
+
+  if (book && user.savedBooks.includes(bookId)) {
+    user.savedBooks = user.savedBooks.filter(id => id !== bookId);
+  } else if (ebook && user.savedBooks.includes(bookId)) {
+    user.savedBooks = user.savedBooks.filter(id => id !== bookId);
+  } else if (audiobook && user.savedBooks.includes(bookId)) {
+    user.savedBooks = user.savedBooks.filter(id => id !== bookId);
+  } else {
+    user.savedBooks.push(bookId);
+  }
+
+  await user.save();
+  return user;
 };

@@ -51,6 +51,21 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    savedBooks: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Book",
+      default: [],
+    },
+    savedAudioBooks: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "AudioBook",
+      default: [],
+    },
+    savedEbooks: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Ebook",
+      default: [],
+    },
     verificationCode: {
         code: {
             type: String,

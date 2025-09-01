@@ -1,7 +1,6 @@
 const Admin = require("../Admin/Admin");
 const bcrypt = require("bcryptjs");
-const { ApiError } = require("../../errors/errorHandler");
-const {deleteFile} = require("../../utils/unLinkFiles");
+const { ApiError } = require("../../errors/errorHandler");  
 
 exports.getAdminById = async (adminId) => {
   const admin = await Admin.findById(adminId).select("-password");
