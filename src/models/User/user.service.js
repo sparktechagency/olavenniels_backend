@@ -53,14 +53,22 @@ exports.toggleSaveBook = async (userId, bookId) => {
 
   if (book && user.savedBooks.includes(bookId)) {
     user.savedBooks = user.savedBooks.filter(id => id !== bookId);
-  } else if (ebook && user.savedBooks.includes(bookId)) {
-    user.savedBooks = user.savedBooks.filter(id => id !== bookId);
-  } else if (audiobook && user.savedBooks.includes(bookId)) {
-    user.savedBooks = user.savedBooks.filter(id => id !== bookId);
+  } else if (ebook && user.savedEbooks.includes(bookId)) {
+    user.savedEbooks = user.savedEbooks.filter(id => id !== bookId);
+  } else if (audiobook && user.savedAudioBooks.includes(bookId)) {
+    user.savedAudioBooks = user.savedAudioBooks.filter(id => id !== bookId);
   } else {
-    user.savedBooks.push(bookId);
+    if (book) user.savedBooks.push(bookId);
+    if (ebook) user.savedEbooks.push(bookId);
+    if (audiobook) user.savedAudioBooks.push(bookId);
   }
 
   await user.save();
   return user;
+};
+
+exports.allSavedBooks = async (userId) => {
+  const user = await User.findById(userId).select("-password").select("-verificationCode").select("-isVerified").select("-passwordResetCode");
+  if (!user) throw new ApiError("User not found", 404);
+  return user.savedBooks;
 };
