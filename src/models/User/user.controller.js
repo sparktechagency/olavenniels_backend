@@ -3,7 +3,7 @@ const userService = require("./user.service");
 const Book = require("../Book/Book");
 const Ebook = require("../Ebook/Ebook");
 const AudioBook = require("../AudioBook/AudioBook");
-const ApiError = require("../../errors/errorHandler");
+const {ApiError} = require("../../errors/errorHandler");
 
 exports.getUserProfile = asyncHandler(async (req, res) => {
   const user = await userService.getUserById(req.user._id || req.user.id);
