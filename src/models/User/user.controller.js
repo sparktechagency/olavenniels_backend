@@ -43,18 +43,37 @@ exports.changeUserPassword = asyncHandler(async (req, res) => {
 
 exports.toggleSaveBook = asyncHandler(async (req, res) => {
   const { id } = req.query;
+  if (!id) throw new ApiError("Book ID is required", 400);
 
-  const contentType = await Book.findById(id) || await Ebook.findById(id) || await AudioBook.findById(id);
-  console.log(contentType);
-  if (!contentType) throw new ApiError("Content not found", 404);
+  let contentType = 'Book';
+  let content = await Book.findById(id);
+  
+  if (!content) {
+    content = await Ebook.findById(id);
+    contentType = 'Ebook';
+  }
+  
+  if (!content) {
+    content = await AudioBook.findById(id);
+    contentType = 'AudioBook';
+  }
 
-  const book = await userService.toggleSaveBook(req.user._id || req.user.id, id, contentType);
+  if (!content) throw new ApiError("Content not found", 404);
 
-  res.json({ success: true, message: "Book saved successfully", data: book });
+  const updatedUser = await userService.toggleSaveBook(
+    req.user._id || req.user.id, 
+    id, 
+    contentType
+  );
+
+  res.json({ 
+    success: true, 
+    message: `Book ${updatedUser.savedItems.some(item => item.contentId.toString() === id) ? 'saved' : 'unsaved'} successfully`,
+    data: updatedUser.savedItems
+  });
 });
 
 exports.allSavedItems = asyncHandler(async (req, res) => {
   const books = await userService.allSavedItems(req.user._id || req.user.id);
   res.json({ success: true, books });
 });
-
