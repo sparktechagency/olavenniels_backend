@@ -1,5 +1,9 @@
 const asyncHandler = require("../../utils/asyncHandler");
 const userService = require("./user.service");
+const Book = require("../Book/Book");
+const Ebook = require("../Ebook/Ebook");
+const AudioBook = require("../AudioBook/AudioBook");
+const ApiError = require("../../errors/errorHandler");
 
 exports.getUserProfile = asyncHandler(async (req, res) => {
   const user = await userService.getUserById(req.user._id || req.user.id);
@@ -40,7 +44,17 @@ exports.changeUserPassword = asyncHandler(async (req, res) => {
 exports.toggleSaveBook = asyncHandler(async (req, res) => {
   const { id } = req.query;
 
-  const book = await userService.toggleSaveBook(req.user._id || req.user.id, id);
+  const contentType = await Book.findById(id) || await Ebook.findById(id) || await AudioBook.findById(id);
+  console.log(contentType);
+  if (!contentType) throw new ApiError("Content not found", 404);
+
+  const book = await userService.toggleSaveBook(req.user._id || req.user.id, id, contentType);
 
   res.json({ success: true, message: "Book saved successfully", data: book });
 });
+
+exports.allSavedItems = asyncHandler(async (req, res) => {
+  const books = await userService.allSavedItems(req.user._id || req.user.id);
+  res.json({ success: true, books });
+});
+

@@ -8,5 +8,6 @@ router.get("/profile/get", authUser, userController.getUserProfile);
 router.put("/profile/update", authUser, upload.single("profilePicture"), userController.updateUserProfile);
 router.post("/profile/change-password", authUser, userController.changeUserPassword);
 router.post("/save-unsave-book", authUser, userController.toggleSaveBook);
+router.get("/saved-items", authUser, userController.allSavedItems);
 
 module.exports = router;

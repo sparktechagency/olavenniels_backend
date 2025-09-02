@@ -51,40 +51,31 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    savedBooks: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Book",
-      default: [],
-    },
-    savedAudioBooks: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "AudioBook",
-      default: [],
-    },
-    savedEbooks: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Ebook",
-      default: [],
-    },
+    savedItems: [
+      {
+        contentId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        contentType: { type: String, enum: ["Book", "Ebook", "AudioBook"], required: true }
+      }
+    ],
     verificationCode: {
-        code: {
-            type: String,
-            default: null,
-        },
-        expiresAt: {
-            type: Date,
-            default: null,
-        },
+      code: {
+        type: String,
+        default: null,
+      },
+      expiresAt: {
+        type: Date,
+        default: null,
+      },
     },
     passwordResetCode: {
-        code: {
-            type: String,
-            default: null,
-        },
-        expiresAt: {
-            type: Date,
-            default: null,
-        },
+      code: {
+        type: String,
+        default: null,
+      },
+      expiresAt: {
+        type: Date,
+        default: null,
+      },
     },
   },
   { timestamps: true }

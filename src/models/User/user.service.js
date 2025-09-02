@@ -43,32 +43,29 @@ exports.changeUserPassword = async (userId, currentPassword, newPassword, confir
 };
 
 
-exports.toggleSaveBook = async (userId, bookId) => {
-  const user = await User.findById(userId).select("-password").select("-verificationCode").select("-isVerified").select("-passwordResetCode");
+exports.toggleSaveBook = async (userId, bookId, contentType) => {
+  const user = await User.findById(userId).select("-password -verificationCode -isVerified -passwordResetCode");
   if (!user) throw new ApiError("User not found", 404);
 
-  const book = await Book.findById(bookId);
-  const ebook = await Ebook.findById(bookId);
-  const audiobook = await AudioBook.findById(bookId);
+  const existingIndex = user.savedItems.findIndex(
+    item => item.contentId.toString() === bookId && item.contentType === contentType
+  );
 
-  if (book && user.savedBooks.includes(bookId)) {
-    user.savedBooks = user.savedBooks.filter(id => id !== bookId);
-  } else if (ebook && user.savedEbooks.includes(bookId)) {
-    user.savedEbooks = user.savedEbooks.filter(id => id !== bookId);
-  } else if (audiobook && user.savedAudioBooks.includes(bookId)) {
-    user.savedAudioBooks = user.savedAudioBooks.filter(id => id !== bookId);
+  if (existingIndex !== -1) {
+    // already saved → remove it
+    user.savedItems.splice(existingIndex, 1);
   } else {
-    if (book) user.savedBooks.push(bookId);
-    if (ebook) user.savedEbooks.push(bookId);
-    if (audiobook) user.savedAudioBooks.push(bookId);
+    // not saved → add it
+    user.savedItems.push({ contentId: bookId, contentType });
   }
 
   await user.save();
   return user;
 };
 
-exports.allSavedBooks = async (userId) => {
+
+exports.allSavedItems = async (userId) => {
   const user = await User.findById(userId).select("-password").select("-verificationCode").select("-isVerified").select("-passwordResetCode");
   if (!user) throw new ApiError("User not found", 404);
-  return user.savedBooks;
+  return user.savedItems;
 };
